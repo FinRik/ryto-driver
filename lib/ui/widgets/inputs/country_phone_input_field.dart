@@ -1,10 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl_phone_number_field/intl_phone_number_field.dart';
 
+import '../../../app/app_setup_locator.dart';
+import '../../../core/setups/region_identity_setup.dart';
+
 class CountryPhoneInputField extends StatefulWidget {
-  const CountryPhoneInputField({super.key, required this.onChanged});
+  const CountryPhoneInputField({
+    super.key,
+    required this.onChanged,
+    this.enabled = true,
+    this.initialValue,
+  });
 
   final void Function(String number) onChanged;
+  final bool enabled;
+  final String? initialValue;
 
   @override
   State<CountryPhoneInputField> createState() => _CountryPhoneInputFieldState();
@@ -14,7 +25,20 @@ class _CountryPhoneInputFieldState extends State<CountryPhoneInputField> {
   final TextEditingController controller = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    if (mounted && widget.initialValue != null) {
+      setState(() => controller.text = widget.initialValue!);
+    }
+  }
+
+  Future<String> loadFromJson() async {
+    return await rootBundle.loadString('assets/countries/country-list.json');
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final region = sl<RegionIdentity>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -29,15 +53,31 @@ class _CountryPhoneInputFieldState extends State<CountryPhoneInputField> {
           inputFormatters: const [],
           formatter: MaskedInputFormatter('### ### ####'),
           initCountry: CountryCodeModel(
-            name: "Nigeria",
-            dial_code: "+234",
-            code: "NG",
+            // name: "Nigeria",
+            // dial_code: "+234",
+            // code: "NG",
+            name: region.country,
+            dial_code: region.countryDialCode,
+            code: region.countryCode,
           ),
           betweenPadding: 6,
-          onInputChanged: (phone) => setState(
-            () => widget.onChanged("${phone.dial_code}${phone.rawNumber}"),
-          ),
-          // loadFromJson: loadFromJson,
+          loadFromJson: loadFromJson,
+          onInputChanged: (phone) {
+            if (region.countryDialCode != phone.dial_code) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    "You cannot select country other than your region",
+                  ),
+                ),
+              );
+              return;
+            } else {
+              setState(() {
+                widget.onChanged("${phone.dial_code}${phone.rawNumber}");
+              });
+            }
+          },
           dialogConfig: DialogConfig(
             backgroundColor: const Color(0xFF444448),
             searchBoxBackgroundColor: const Color(0xFF56565a),
@@ -89,8 +129,10 @@ class _CountryPhoneInputFieldState extends State<CountryPhoneInputField> {
             flatFlag: false,
           ),
           validator: (number) {
-            if (number.number.isEmpty) {
-              return "The phone number cannot be left emptyssss";
+            if (region.countryDialCode != number.dial_code) {
+              return "Invalid county selection";
+            } else if (number.number.isEmpty) {
+              return "Phone number is required.";
             }
             return null;
           },

@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -8,7 +9,6 @@ import '../../../../widgets/buttons/button.dart';
 import '../../../../widgets/inputs/country_phone_input_field.dart';
 import '../../../../widgets/texts/terms_text.dart';
 import '../../bloc/auth_bloc.dart';
-
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -29,13 +29,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
         body: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is AuthSuccess) {
-              router.push(Paths.VERIFYPHONENUMBER, extra: _phone);
-            }
-
-            if (state is AuthFailure) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(state.message)));
+              router.go(
+                Paths.VERIFYPHONENUMBER,
+                extra: VerifyOtpArgs(phone: _phone!, isLogin: false),
+              );
             }
           },
           builder: (context, state) {
@@ -91,13 +88,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               fontSize: 14,
                               fontWeight: FontWeight.w400,
                             ),
-                            children: const [
+                            children: [
                               TextSpan(
                                 text: "Log in",
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   color: Colors.blue,
+                                  decoration: TextDecoration.underline,
                                 ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    router.push(Paths.LOGIN);
+                                  },
                               ),
                             ],
                           ),

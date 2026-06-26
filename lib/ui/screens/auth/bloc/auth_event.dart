@@ -23,9 +23,18 @@ class RegisterRequested extends AuthEvent {
   List<Object?> get props => [phone];
 }
 
-class VerifyPhoneRequested extends AuthEvent {
+class VerifyLoginRequested extends AuthEvent {
+  final String phone;
   final String code;
-  const VerifyPhoneRequested(this.code);
+  const VerifyLoginRequested({required this.phone, required this.code});
+
+  @override
+  List<Object?> get props => [phone, code];
+}
+
+class VerifyOtpRequested extends AuthEvent {
+  final String code;
+  const VerifyOtpRequested(this.code);
 
   @override
   List<Object?> get props => [code];
@@ -34,23 +43,3 @@ class VerifyPhoneRequested extends AuthEvent {
 class ResendOtpRequested extends AuthEvent {}
 
 class LogoutRequested extends AuthEvent {}
-
-/// NEW EVENTS
-
-class UpdateProfileRequested extends AuthEvent {
-  final DriverProfileRequest request;
-
-  const UpdateProfileRequested(this.request);
-
-  @override
-  List<Object?> get props => [request];
-}
-
-class UpdateProfilePicRequested extends AuthEvent {
-  final File image;
-
-  const UpdateProfilePicRequested(this.image);
-
-  @override
-  List<Object?> get props => [image];
-}

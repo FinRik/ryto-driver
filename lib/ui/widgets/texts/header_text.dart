@@ -8,7 +8,7 @@ class HeaderText extends StatelessWidget {
   final EdgeInsets? padding;
   final CrossAxisAlignment? crossAxisAlignment;
   final MainAxisAlignment? mainAxisAlignment;
-  final bool centerSubtitle;
+  final bool centerLabel, centerSubtitle;
 
   const HeaderText({
     super.key,
@@ -20,6 +20,7 @@ class HeaderText extends StatelessWidget {
     this.padding,
     this.crossAxisAlignment,
     this.mainAxisAlignment,
+    this.centerLabel = false,
     this.centerSubtitle = false,
   });
 
@@ -34,6 +35,7 @@ class HeaderText extends StatelessWidget {
           // const SizedBox(height: 34),
           Text(
             label,
+            textAlign: centerLabel ? TextAlign.center : TextAlign.start,
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w700,

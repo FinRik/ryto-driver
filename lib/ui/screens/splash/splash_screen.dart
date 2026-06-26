@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../app/res/logos.dart';
+import '../../../core/repos/regional_manager_repo.dart';
 import '../../../core/routes/router.dart';
 import '../../../core/routes/routes.dart';
+import '../../../utils/helpers/jwt_utils.dart';
+import '../../../utils/storage/app_launch_state.dart';
+import '../../../utils/storage/token_storage.dart';
 import '../../styles/app_colors.dart';
 import '../../widgets/customs/svg_widget.dart';
 import '../../widgets/texts/header_text.dart';
@@ -18,12 +23,25 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    _initializeApp();
+  }
 
-    Future.delayed(Duration(seconds: 3), () {
-      // router.push(Paths.ONBOARDING);
-      // router.push(Paths.ACCOUNTSETUP);
-      router.push(Paths.HOME);
-    });
+  Future<void> _initializeApp() async {
+    // Use Future.wait to run branding timer and logic in parallel
+    await Future.wait([
+      context.read<RegionalManagerRepo>().initializeRegion(),
+    ]);
+    // Once initialized, proceed with Auth logic
+    final token = await TokenStorage.getAccessToken();
+    if (!(await AppLaunchState.isFirstLaunch())) {
+      if (JwtUtils.isValid(token)) {
+        router.push(Paths.HOME);
+      } else {
+        router.push(Paths.LOGIN);
+      }
+    } else {
+      router.go(Paths.ONBOARDING);
+    }
   }
 
   @override

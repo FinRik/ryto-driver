@@ -31,9 +31,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 children: [
                   Image.asset(AppImages.onboardOne),
                   HeaderText(
-                    label: "Earn from trips already planned.",
-                    subText:
-                        "Turn your empty seats or trunk space into extra income on your next intercity trip management.",
+                    label: "Earn from trips you’re already planning.",
+                    subText: "Turn empty seats or trunk space into extra income on your next intercity trip.",
                     labelStyle: TextStyle(
                       fontSize: 36,
                       fontWeight: FontWeight.w600
@@ -56,7 +55,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     suffixIcon: Icons.keyboard_arrow_right_outlined,
                   ),
                   SizedBox(height: 8,),
-                  Button.outline(text: 'Login', onTap: () {  },),
+                  Button.outline(text: 'Login', onTap: () {
+                    router.push(Paths.LOGIN);
+                  },),
                   SizedBox(height: 32,),
                   TermsText(),
                 ],

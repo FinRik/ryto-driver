@@ -1,0 +1,22 @@
+import 'package:dio/dio.dart';
+
+class InterceptorWrappers extends Interceptor {
+  @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    // Paste your _responseInterceptor logic here
+    print('Response received: ${response.statusCode}');
+
+    // Always call super or handler.next to continue the lifecycle
+    super.onResponse(response, handler);
+  }
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    // Paste your _errorInterceptor logic here
+    if (err.response?.statusCode == 401) {
+      print('Unauthorized - handle token refresh or logout');
+    }
+
+    super.onError(err, handler);
+  }
+}

@@ -1,0 +1,50 @@
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+
+import '../config/custom_dio_exception.dart';
+import '../routes/router.dart';
+
+class ConnectionInterceptor extends Interceptor {
+  static bool _isDialogShowing = false;
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    final customError = CustomDioException.fromDioException(err);
+
+    // Check if it's a connectivity issue
+    if (customError.message == 'No internet connection') {
+      _showNoInternetDialog();
+    }
+
+    return handler.next(err); // Pass the error forward
+  }
+
+  Future<void> _showNoInternetDialog() async {
+    if (_isDialogShowing) return; // Prevent multiple dialogs
+
+    final context = router.routerDelegate.navigatorKey.currentContext;
+    if (context == null) return;
+
+    _isDialogShowing = true;
+
+    return await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('No Connection'),
+        content: const Text(
+          'It looks like you are offline. Please check your settings.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              _isDialogShowing = false;
+              Navigator.pop(context);
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+}

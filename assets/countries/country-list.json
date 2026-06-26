@@ -1,0 +1,12 @@
+[
+  {
+    "name": "United States",
+    "dial_code": "+1",
+    "code": "US"
+  },
+  {
+    "name": "Nigeria",
+    "dial_code": "+234",
+    "code": "NG"
+  }
+]

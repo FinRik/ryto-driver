@@ -1,0 +1,1 @@
+enum VerificationStatusEnum { locked, available, inReview, completed, failed }

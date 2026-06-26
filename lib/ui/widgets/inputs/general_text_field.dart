@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../utils/helpers/date_formatter_utils.dart';
+import '../../bottom_sheets/date_selection_bottom_sheet.dart';
+
 class GeneralTextField extends StatefulWidget {
   final String? label;
   final String? hint;
-  final TextEditingController controller;
+  final TextEditingController? controller;
   final IconData? prefixIcon;
   final TextInputType? textInputType;
   final String? prefixSvg;
@@ -18,6 +21,7 @@ class GeneralTextField extends StatefulWidget {
   final TextStyle? labelStyle;
   final bool? filled, readOnly;
   final Color? fillColor;
+  final bool isPackageDateSelector;
 
   const GeneralTextField({
     super.key,
@@ -36,6 +40,7 @@ class GeneralTextField extends StatefulWidget {
     this.labelStyle,
     this.filled,
     this.readOnly,
+    this.isPackageDateSelector = false,
     this.fillColor,
   });
 
@@ -44,9 +49,10 @@ class GeneralTextField extends StatefulWidget {
 }
 
 class _GeneralTextFieldState extends State<GeneralTextField> {
+  late final TextEditingController _controller;
   DateTime selectedDate = DateTime.now();
 
-  Future<void> _selectDate(BuildContext context) async {
+  Future<void> _selectDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDate,
@@ -57,10 +63,34 @@ class _GeneralTextFieldState extends State<GeneralTextField> {
     if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
-        widget.controller.text =
+        _controller.text =
             "${selectedDate.month} / ${selectedDate.day} / ${selectedDate.year}";
       });
     }
+  }
+
+  Future<void> _openCalendar() async {
+    final DateTime? result = await showModalBottomSheet<DateTime>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const DateSelectionBottomSheet(),
+    );
+
+    if (result != null && result != selectedDate) {
+      setState(() {
+        selectedDate = result;
+        _controller.text = DateTimeHelper.toDisplayFormat(result);
+        // widget.controller?.text =
+        // "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}";
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = widget.controller ?? TextEditingController();
   }
 
   @override
@@ -159,7 +189,7 @@ class _GeneralTextFieldState extends State<GeneralTextField> {
       return InkWell(
         splashFactory: NoSplash.splashFactory,
         splashColor: theme.splashColor,
-        onTap: () => _selectDate(context),
+        onTap: () => widget.isPackageDateSelector ? _openCalendar : _selectDate,
         child: const Padding(
           padding: EdgeInsets.all(4.0),
           child: Icon(Icons.keyboard_arrow_down_sharp),

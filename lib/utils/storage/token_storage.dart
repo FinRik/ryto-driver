@@ -17,4 +17,13 @@ class TokenStorage {
       value: token,
     );
   }
+
+  static Future<bool> deleteAccessToken() async {
+    try {
+      await _localStorageService.delete(key: AppString.accessToken);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }

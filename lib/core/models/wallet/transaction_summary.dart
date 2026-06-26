@@ -1,0 +1,68 @@
+// Enum to handle different icon colors and logic in UI
+enum TransactionType {
+  tripEarning, // Green Icon, + Amount
+  packagePayout, // Light Green Icon, + Amount
+  bankWithdrawal, // Blue Icon, - Amount
+  unknown,
+}
+
+class TransactionItem {
+  final int id;
+  final String typeString;
+  final double amount;
+  final String currency;
+  final DateTime createdAt;
+  final TransactionType type;
+
+  TransactionItem({
+    required this.id,
+    required this.typeString,
+    required this.amount,
+    required this.currency,
+    required this.createdAt,
+    required this.type,
+  });
+
+  factory TransactionItem.fromJson(Map<String, dynamic> json) {
+    // Mapping logic for your Enum
+    TransactionType mapType(String typeStr) {
+      switch (typeStr) {
+        case 'TRIP_EARNING':
+          return TransactionType.tripEarning;
+        default:
+          return TransactionType.unknown;
+      }
+    }
+
+    return TransactionItem(
+      id: json['id'] ?? 0,
+      typeString: json['type'] ?? '',
+      amount: (json['amount'] ?? 0.0).toDouble(),
+      currency: json['currency'] ?? 'NGN',
+      createdAt: DateTime.parse(
+        json['createdAt'] ?? DateTime.now().toIso8601String(),
+      ),
+      type: mapType(json['type'] ?? ''),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'type': typeString,
+    'amount': amount,
+    'currency': currency,
+    'createdAt': createdAt.toIso8601String(),
+  };
+
+  // Helper for UI logic
+  bool get isCredit => type != TransactionType.bankWithdrawal;
+
+  String get displayTitle {
+    switch (type) {
+      case TransactionType.tripEarning:
+        return "Trip Earning";
+      default:
+        return typeString.replaceAll('_', ' ');
+    }
+  }
+}

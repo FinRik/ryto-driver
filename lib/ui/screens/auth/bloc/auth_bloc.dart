@@ -1,8 +1,7 @@
-import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/models/auth/driver_profile_request.dart';
+import '../../../../core/config/custom_dio_exception.dart';
 import '../../../../core/repos/auth_repo.dart';
 
 part 'auth_event.dart';
@@ -12,7 +11,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepo repo;
 
   AuthBloc(this.repo) : super(AuthInitial()) {
-
     on<LoginRequested>((event, emit) async {
       emit(AuthLoading());
 
@@ -25,7 +23,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(const AuthFailure("Login failed"));
         }
       } catch (e) {
-        emit(AuthFailure(e.toString()));
+        emit(AuthFailure("Something went wrong. Please try again later."));
       }
     });
 
@@ -41,15 +39,38 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(const AuthFailure("Registration failed"));
         }
       } catch (e) {
-        emit(AuthFailure(e.toString()));
+        emit(AuthFailure("Something went wrong. Please try again later."));
       }
     });
 
-    on<VerifyPhoneRequested>((event, emit) async {
+    on<VerifyLoginRequested>((event, emit) async {
       emit(AuthLoading());
 
       try {
-        final success = await repo.verifyPhone(event.code);
+        // If successful, this will complete. If it fails, it throws an exception.
+        await repo.verifyLogin(event.phone, event.code);
+
+        // If no exception was thrown, it's a guaranteed success
+        emit(AuthSuccess());
+      } on ExceptionNotACustomer catch (e) {
+        // Catches role restriction issues
+        emit(AuthFailure(e.message));
+      } on ExceptionUnverifiedAccount catch (e) {
+        // Catches unverified accounts
+        emit(AuthFailure(e.message));
+      } on ExceptionInvalidCredentials catch (e) {
+        // Catches invalid OTP / 400 bad requests
+        emit(AuthFailure(e.message));
+      } catch (e) {
+        emit(AuthFailure("Something went wrong. Please try again later."));
+      }
+    });
+
+    on<VerifyOtpRequested>((event, emit) async {
+      emit(AuthLoading());
+
+      try {
+        final success = await repo.verifyOtp(event.code);
 
         if (success) {
           emit(AuthSuccess());
@@ -57,7 +78,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(const AuthFailure("OTP verification failed"));
         }
       } catch (e) {
-        emit(AuthFailure(e.toString()));
+        emit(AuthFailure("Something went wrong. Please try again later."));
       }
     });
 
@@ -73,39 +94,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(const AuthFailure("Failed to resend OTP"));
         }
       } catch (e) {
-        emit(AuthFailure(e.toString()));
-      }
-    });
-
-    on<UpdateProfileRequested>((event, emit) async {
-      emit(AuthLoading());
-
-      try {
-        final success = await repo.updateProfile(event.request);
-
-        if (success) {
-          emit(AuthSuccess());
-        } else {
-          emit(const AuthFailure("Profile update failed"));
-        }
-      } catch (e) {
-        emit(AuthFailure(e.toString()));
-      }
-    });
-
-    on<UpdateProfilePicRequested>((event, emit) async {
-      emit(AuthLoading());
-
-      try {
-        final success = await repo.updateProfilePic(event.image);
-
-        if (success) {
-          emit(AuthSuccess());
-        } else {
-          emit(const AuthFailure("Profile picture upload failed"));
-        }
-      } catch (e) {
-        emit(AuthFailure(e.toString()));
+        emit(AuthFailure("Something went wrong. Please try again later."));
       }
     });
 
@@ -121,9 +110,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(const AuthFailure("Logout failed"));
         }
       } catch (e) {
-        emit(AuthFailure(e.toString()));
+        emit(AuthFailure("Something went wrong. Please try again later."));
       }
     });
-
   }
 }

@@ -22,7 +22,7 @@ class _ApiService implements ApiService {
   final ParseErrorLogger? errorLogger;
 
   Future<BaseModel<dynamic>> _login(String phone) async {
-    final _extra = <String, dynamic>{};
+    final _extra = <String, dynamic>{'isPublic': true};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = {'phone': phone};
@@ -56,7 +56,7 @@ class _ApiService implements ApiService {
   }
 
   Future<BaseModel<AuthResponse>> _register(String phone) async {
-    final _extra = <String, dynamic>{};
+    final _extra = <String, dynamic>{'isPublic': true};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = {'phone': phone};
@@ -91,12 +91,51 @@ class _ApiService implements ApiService {
     );
   }
 
-  Future<BaseModel<VerifiedPhoneResponse>> _verifyOtp(String code) async {
+  Future<BaseModel<AuthResponse>> _verifyLogin(
+    String phone,
+    String code,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = {'phone': phone, 'code': code};
+    final _options = _setStreamType<BaseModel<AuthResponse>>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/auth/driver/verify-login',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late BaseModel<AuthResponse> _value;
+    try {
+      _value = BaseModel<AuthResponse>.fromJson(
+        _result.data!,
+        (json) => AuthResponse.fromJson(json as Map<String, dynamic>),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<BaseModel<AuthResponse>> verifyLogin(String phone, String code) {
+    return ErrorAdapter<BaseModel<AuthResponse>>().adapt(
+      () => _verifyLogin(phone, code),
+    );
+  }
+
+  Future<BaseModel<UserEntity>> _verifyOtp(String code) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = {'code': code};
-    final _options = _setStreamType<BaseModel<VerifiedPhoneResponse>>(
+    final _options = _setStreamType<BaseModel<UserEntity>>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -107,11 +146,11 @@ class _ApiService implements ApiService {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late BaseModel<VerifiedPhoneResponse> _value;
+    late BaseModel<UserEntity> _value;
     try {
-      _value = BaseModel<VerifiedPhoneResponse>.fromJson(
+      _value = BaseModel<UserEntity>.fromJson(
         _result.data!,
-        (json) => VerifiedPhoneResponse.fromJson(json as Map<String, dynamic>),
+        (json) => UserEntity.fromJson(json as Map<String, dynamic>),
       );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
@@ -121,10 +160,8 @@ class _ApiService implements ApiService {
   }
 
   @override
-  Future<BaseModel<VerifiedPhoneResponse>> verifyOtp(String code) {
-    return ErrorAdapter<BaseModel<VerifiedPhoneResponse>>().adapt(
-      () => _verifyOtp(code),
-    );
+  Future<BaseModel<UserEntity>> verifyOtp(String code) {
+    return ErrorAdapter<BaseModel<UserEntity>>().adapt(() => _verifyOtp(code));
   }
 
   Future<BaseModel<dynamic>> _resendOtp() async {
@@ -185,7 +222,7 @@ class _ApiService implements ApiService {
           )
           .compose(
             _dio.options,
-            'auth/driver/profile-picture',
+            '/auth/driver/profile-picture',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -212,15 +249,15 @@ class _ApiService implements ApiService {
     );
   }
 
-  Future<BaseModel<DriverProfileRequest>> _updateProfile(
-    DriverProfileRequest request,
+  Future<BaseModel<ProfileRequest>> _updateProfile(
+    ProfileRequest request,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(request.toJson());
-    final _options = _setStreamType<BaseModel<DriverProfileRequest>>(
+    final _options = _setStreamType<BaseModel<ProfileRequest>>(
       Options(method: 'PUT', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -231,11 +268,11 @@ class _ApiService implements ApiService {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late BaseModel<DriverProfileRequest> _value;
+    late BaseModel<ProfileRequest> _value;
     try {
-      _value = BaseModel<DriverProfileRequest>.fromJson(
+      _value = BaseModel<ProfileRequest>.fromJson(
         _result.data!,
-        (json) => DriverProfileRequest.fromJson(json as Map<String, dynamic>),
+        (json) => ProfileRequest.fromJson(json as Map<String, dynamic>),
       );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
@@ -245,15 +282,125 @@ class _ApiService implements ApiService {
   }
 
   @override
-  Future<BaseModel<DriverProfileRequest>> updateProfile(
-    DriverProfileRequest request,
-  ) {
-    return ErrorAdapter<BaseModel<DriverProfileRequest>>().adapt(
+  Future<BaseModel<ProfileRequest>> updateProfile(ProfileRequest request) {
+    return ErrorAdapter<BaseModel<ProfileRequest>>().adapt(
       () => _updateProfile(request),
     );
   }
 
-  Future<BaseModel<dynamic>> _verifyNin(
+  Future<BaseModel<UserEntity>> _fetchProfile() async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<BaseModel<UserEntity>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/auth/driver/user',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late BaseModel<UserEntity> _value;
+    try {
+      _value = BaseModel<UserEntity>.fromJson(
+        _result.data!,
+        (json) => UserEntity.fromJson(json as Map<String, dynamic>),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<BaseModel<UserEntity>> fetchProfile() {
+    return ErrorAdapter<BaseModel<UserEntity>>().adapt(() => _fetchProfile());
+  }
+
+  Future<BaseModel<dynamic>> _fetchUSKycStatus() async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<BaseModel<dynamic>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/kyc/driver/status',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late BaseModel<dynamic> _value;
+    try {
+      _value = BaseModel<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<BaseModel<dynamic>> fetchUSKycStatus() {
+    return ErrorAdapter<BaseModel<dynamic>>().adapt(() => _fetchUSKycStatus());
+  }
+
+  Future<BaseModel<dynamic>> _fetchNGKycStatus(
+    int userId,
+    String type,
+    String status,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = {'userId': userId, 'type': type, 'status': status};
+    final _options = _setStreamType<BaseModel<dynamic>>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/kyc/driver/webhook',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late BaseModel<dynamic> _value;
+    try {
+      _value = BaseModel<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<BaseModel<dynamic>> fetchNGKycStatus(
+    int userId,
+    String type,
+    String status,
+  ) {
+    return ErrorAdapter<BaseModel<dynamic>>().adapt(
+      () => _fetchNGKycStatus(userId, type, status),
+    );
+  }
+
+  Future<BaseModel<KycResponse>> _verifyNin(
     String identityType,
     String nin,
     File selfie,
@@ -285,7 +432,7 @@ class _ApiService implements ApiService {
         ),
       ),
     );
-    final _options = _setStreamType<BaseModel<dynamic>>(
+    final _options = _setStreamType<BaseModel<KycResponse>>(
       Options(
             method: 'POST',
             headers: _headers,
@@ -301,11 +448,11 @@ class _ApiService implements ApiService {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late BaseModel<dynamic> _value;
+    late BaseModel<KycResponse> _value;
     try {
-      _value = BaseModel<dynamic>.fromJson(
+      _value = BaseModel<KycResponse>.fromJson(
         _result.data!,
-        (json) => json as dynamic,
+        (json) => KycResponse.fromJson(json as Map<String, dynamic>),
       );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
@@ -315,18 +462,18 @@ class _ApiService implements ApiService {
   }
 
   @override
-  Future<BaseModel<dynamic>> verifyNin(
+  Future<BaseModel<KycResponse>> verifyNin(
     String identityType,
     String nin,
     File selfie,
     File document,
   ) {
-    return ErrorAdapter<BaseModel<dynamic>>().adapt(
+    return ErrorAdapter<BaseModel<KycResponse>>().adapt(
       () => _verifyNin(identityType, nin, selfie, document),
     );
   }
 
-  Future<BaseModel<dynamic>> _verifyLicense(
+  Future<BaseModel<KycResponse>> _verifyLicense(
     String licenseNumber,
     String expiryDate,
     File front,
@@ -358,7 +505,7 @@ class _ApiService implements ApiService {
         ),
       ),
     );
-    final _options = _setStreamType<BaseModel<dynamic>>(
+    final _options = _setStreamType<BaseModel<KycResponse>>(
       Options(
             method: 'POST',
             headers: _headers,
@@ -368,47 +515,6 @@ class _ApiService implements ApiService {
           .compose(
             _dio.options,
             '/kyc/driver/license',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late BaseModel<dynamic> _value;
-    try {
-      _value = BaseModel<dynamic>.fromJson(
-        _result.data!,
-        (json) => json as dynamic,
-      );
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<BaseModel<dynamic>> verifyLicense(
-    String licenseNumber,
-    String expiryDate,
-    File front,
-    File back,
-  ) {
-    return ErrorAdapter<BaseModel<dynamic>>().adapt(
-      () => _verifyLicense(licenseNumber, expiryDate, front, back),
-    );
-  }
-
-  Future<BaseModel<KycResponse>> _fetchVerificationStatus() async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<BaseModel<KycResponse>>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/kyc/driver/status',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -429,9 +535,145 @@ class _ApiService implements ApiService {
   }
 
   @override
-  Future<BaseModel<KycResponse>> fetchVerificationStatus() {
+  Future<BaseModel<KycResponse>> verifyLicense(
+    String licenseNumber,
+    String expiryDate,
+    File front,
+    File back,
+  ) {
     return ErrorAdapter<BaseModel<KycResponse>>().adapt(
-      () => _fetchVerificationStatus(),
+      () => _verifyLicense(licenseNumber, expiryDate, front, back),
+    );
+  }
+
+  Future<BaseModel<USKycPreflight>> _attemptUSKyc(
+    String ssn,
+    String dob,
+    String driverLicenseNumber,
+    String driverLicenseState,
+    String zipcode,
+    File licenseFront,
+    File licenseBack,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = FormData();
+    _data.fields.add(MapEntry('ssn', ssn));
+    _data.fields.add(MapEntry('dob', dob));
+    _data.fields.add(MapEntry('driverLicenseNumber', driverLicenseNumber));
+    _data.fields.add(MapEntry('driverLicenseState', driverLicenseState));
+    _data.fields.add(MapEntry('zipcode', zipcode));
+    _data.files.add(
+      MapEntry(
+        'licenseFront',
+        MultipartFile.fromFileSync(
+          licenseFront.path,
+          filename: licenseFront.path.split(Platform.pathSeparator).last,
+          contentType: DioMediaType.parse('image/png'),
+        ),
+      ),
+    );
+    _data.files.add(
+      MapEntry(
+        'licenseBack',
+        MultipartFile.fromFileSync(
+          licenseBack.path,
+          filename: licenseBack.path.split(Platform.pathSeparator).last,
+          contentType: DioMediaType.parse('image/png'),
+        ),
+      ),
+    );
+    final _options = _setStreamType<BaseModel<USKycPreflight>>(
+      Options(
+            method: 'POST',
+            headers: _headers,
+            extra: _extra,
+            contentType: 'multipart/form-data',
+          )
+          .compose(
+            _dio.options,
+            '/kyc/driver/us/preflight',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late BaseModel<USKycPreflight> _value;
+    try {
+      _value = BaseModel<USKycPreflight>.fromJson(
+        _result.data!,
+        (json) => USKycPreflight.fromJson(json as Map<String, dynamic>),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<BaseModel<USKycPreflight>> attemptUSKyc(
+    String ssn,
+    String dob,
+    String driverLicenseNumber,
+    String driverLicenseState,
+    String zipcode,
+    File licenseFront,
+    File licenseBack,
+  ) {
+    return ErrorAdapter<BaseModel<USKycPreflight>>().adapt(
+      () => _attemptUSKyc(
+        ssn,
+        dob,
+        driverLicenseNumber,
+        driverLicenseState,
+        zipcode,
+        licenseFront,
+        licenseBack,
+      ),
+    );
+  }
+
+  Future<BaseModel<USKycVerification>> _verifyUSKyc() async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<BaseModel<USKycVerification>>(
+      Options(
+            method: 'POST',
+            headers: _headers,
+            extra: _extra,
+            contentType: 'multipart/form-data',
+          )
+          .compose(
+            _dio.options,
+            '/kyc/driver/us/verification-session/native',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late BaseModel<USKycVerification> _value;
+    try {
+      _value = BaseModel<USKycVerification>.fromJson(
+        _result.data!,
+        (json) => USKycVerification.fromJson(json as Map<String, dynamic>),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<BaseModel<USKycVerification>> verifyUSKyc() {
+    return ErrorAdapter<BaseModel<USKycVerification>>().adapt(
+      () => _verifyUSKyc(),
     );
   }
 
@@ -663,12 +905,12 @@ class _ApiService implements ApiService {
     );
   }
 
-  Future<BaseModel<VehicleDetailsResponse>> _fetchVehicleDetails() async {
+  Future<BaseModel<VehicleDetail>> _fetchVehicleDetails() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<BaseModel<VehicleDetailsResponse>>(
+    final _options = _setStreamType<BaseModel<VehicleDetail>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -679,11 +921,11 @@ class _ApiService implements ApiService {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late BaseModel<VehicleDetailsResponse> _value;
+    late BaseModel<VehicleDetail> _value;
     try {
-      _value = BaseModel<VehicleDetailsResponse>.fromJson(
+      _value = BaseModel<VehicleDetail>.fromJson(
         _result.data!,
-        (json) => VehicleDetailsResponse.fromJson(json as Map<String, dynamic>),
+        (json) => VehicleDetail.fromJson(json as Map<String, dynamic>),
       );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
@@ -693,18 +935,18 @@ class _ApiService implements ApiService {
   }
 
   @override
-  Future<BaseModel<VehicleDetailsResponse>> fetchVehicleDetails() {
-    return ErrorAdapter<BaseModel<VehicleDetailsResponse>>().adapt(
+  Future<BaseModel<VehicleDetail>> fetchVehicleDetails() {
+    return ErrorAdapter<BaseModel<VehicleDetail>>().adapt(
       () => _fetchVehicleDetails(),
     );
   }
 
-  Future<BaseModel<PreferenceSetup>> _fetchDriverPreference() async {
+  Future<BaseModel<Preferences>> _fetchDriverPreference() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<BaseModel<PreferenceSetup>>(
+    final _options = _setStreamType<BaseModel<Preferences>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -715,11 +957,11 @@ class _ApiService implements ApiService {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late BaseModel<PreferenceSetup> _value;
+    late BaseModel<Preferences> _value;
     try {
-      _value = BaseModel<PreferenceSetup>.fromJson(
+      _value = BaseModel<Preferences>.fromJson(
         _result.data!,
-        (json) => PreferenceSetup.fromJson(json as Map<String, dynamic>),
+        (json) => Preferences.fromJson(json as Map<String, dynamic>),
       );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
@@ -729,8 +971,8 @@ class _ApiService implements ApiService {
   }
 
   @override
-  Future<BaseModel<PreferenceSetup>> fetchDriverPreference() {
-    return ErrorAdapter<BaseModel<PreferenceSetup>>().adapt(
+  Future<BaseModel<Preferences>> fetchDriverPreference() {
+    return ErrorAdapter<BaseModel<Preferences>>().adapt(
       () => _fetchDriverPreference(),
     );
   }
@@ -753,7 +995,7 @@ class _ApiService implements ApiService {
       'petsAllowed': petsAllowed,
     };
     final _options = _setStreamType<BaseModel<dynamic>>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
+      Options(method: 'PUT', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
             '/driver/trip/preferences',
@@ -795,12 +1037,12 @@ class _ApiService implements ApiService {
     );
   }
 
-  Future<BaseModel<dynamic>> _fetchDriverPayout() async {
+  Future<BaseModel<PayoutBank>> _fetchDriverPayout() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<BaseModel<dynamic>>(
+    final _options = _setStreamType<BaseModel<PayoutBank>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -811,11 +1053,11 @@ class _ApiService implements ApiService {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late BaseModel<dynamic> _value;
+    late BaseModel<PayoutBank> _value;
     try {
-      _value = BaseModel<dynamic>.fromJson(
+      _value = BaseModel<PayoutBank>.fromJson(
         _result.data!,
-        (json) => json as dynamic,
+        (json) => PayoutBank.fromJson(json as Map<String, dynamic>),
       );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
@@ -825,8 +1067,10 @@ class _ApiService implements ApiService {
   }
 
   @override
-  Future<BaseModel<dynamic>> fetchDriverPayout() {
-    return ErrorAdapter<BaseModel<dynamic>>().adapt(() => _fetchDriverPayout());
+  Future<BaseModel<PayoutBank>> fetchDriverPayout() {
+    return ErrorAdapter<BaseModel<PayoutBank>>().adapt(
+      () => _fetchDriverPayout(),
+    );
   }
 
   Future<BaseModel<dynamic>> _setDriverPayout(
@@ -843,7 +1087,7 @@ class _ApiService implements ApiService {
       'accountNumber': accountNumber,
     };
     final _options = _setStreamType<BaseModel<dynamic>>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
+      Options(method: 'PUT', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
             '/driver/payout-method',
@@ -874,6 +1118,102 @@ class _ApiService implements ApiService {
   ) {
     return ErrorAdapter<BaseModel<dynamic>>().adapt(
       () => _setDriverPayout(bankCode, bankName, accountNumber),
+    );
+  }
+
+  Future<BaseModel<dynamic>> _setUSRecipient(
+    String contactEmail,
+    String displayName,
+    String entityType,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = {
+      'contactEmail': contactEmail,
+      'displayName': displayName,
+      'entityType': entityType,
+    };
+    final _options = _setStreamType<BaseModel<dynamic>>(
+      Options(method: 'PUT', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/driver/payout-method/us/recipient',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late BaseModel<dynamic> _value;
+    try {
+      _value = BaseModel<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<BaseModel<dynamic>> setUSRecipient(
+    String contactEmail,
+    String displayName,
+    String entityType,
+  ) {
+    return ErrorAdapter<BaseModel<dynamic>>().adapt(
+      () => _setUSRecipient(contactEmail, displayName, entityType),
+    );
+  }
+
+  Future<BaseModel<dynamic>> _setUSPayout(
+    String accountNumber,
+    String routingNumber,
+    String country,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = {
+      'accountNumber': accountNumber,
+      'routingNumber': routingNumber,
+      'country': country,
+    };
+    final _options = _setStreamType<BaseModel<dynamic>>(
+      Options(method: 'PUT', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/driver/payout-method/us/bank',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late BaseModel<dynamic> _value;
+    try {
+      _value = BaseModel<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<BaseModel<dynamic>> setUSPayout(
+    String accountNumber,
+    String routingNumber,
+    String country,
+  ) {
+    return ErrorAdapter<BaseModel<dynamic>>().adapt(
+      () => _setUSPayout(accountNumber, routingNumber, country),
     );
   }
 
@@ -913,12 +1253,12 @@ class _ApiService implements ApiService {
     );
   }
 
-  Future<BaseModel<TransactionSummary>> _fetchTransactions() async {
+  Future<BaseModel<List<TransactionItem>>> _fetchTransactions() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<BaseModel<TransactionSummary>>(
+    final _options = _setStreamType<BaseModel<List<TransactionItem>>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -929,11 +1269,17 @@ class _ApiService implements ApiService {
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late BaseModel<TransactionSummary> _value;
+    late BaseModel<List<TransactionItem>> _value;
     try {
-      _value = BaseModel<TransactionSummary>.fromJson(
+      _value = BaseModel<List<TransactionItem>>.fromJson(
         _result.data!,
-        (json) => TransactionSummary.fromJson(json as Map<String, dynamic>),
+        (json) => json is List<dynamic>
+            ? json
+                  .map<TransactionItem>(
+                    (i) => TransactionItem.fromJson(i as Map<String, dynamic>),
+                  )
+                  .toList()
+            : List.empty(),
       );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
@@ -943,9 +1289,469 @@ class _ApiService implements ApiService {
   }
 
   @override
-  Future<BaseModel<TransactionSummary>> fetchTransactions() {
-    return ErrorAdapter<BaseModel<TransactionSummary>>().adapt(
+  Future<BaseModel<List<TransactionItem>>> fetchTransactions() {
+    return ErrorAdapter<BaseModel<List<TransactionItem>>>().adapt(
       () => _fetchTransactions(),
+    );
+  }
+
+  Future<BaseModel<WithdrawalResponse>> _requestWithdrawal(
+    double amount,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = {'amount': amount};
+    final _options = _setStreamType<BaseModel<WithdrawalResponse>>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/driver/payout/request',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late BaseModel<WithdrawalResponse> _value;
+    try {
+      _value = BaseModel<WithdrawalResponse>.fromJson(
+        _result.data!,
+        (json) => WithdrawalResponse.fromJson(json as Map<String, dynamic>),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<BaseModel<WithdrawalResponse>> requestWithdrawal(double amount) {
+    return ErrorAdapter<BaseModel<WithdrawalResponse>>().adapt(
+      () => _requestWithdrawal(amount),
+    );
+  }
+
+  Future<BaseModel<TripCostSummary>> _fetchBookingCost(
+    TripCostRequest request,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(request.toJson());
+    final _options = _setStreamType<BaseModel<TripCostSummary>>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/booking/summary',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late BaseModel<TripCostSummary> _value;
+    try {
+      _value = BaseModel<TripCostSummary>.fromJson(
+        _result.data!,
+        (json) => TripCostSummary.fromJson(json as Map<String, dynamic>),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<BaseModel<TripCostSummary>> fetchBookingCost(TripCostRequest request) {
+    return ErrorAdapter<BaseModel<TripCostSummary>>().adapt(
+      () => _fetchBookingCost(request),
+    );
+  }
+
+  Future<BaseModel<dynamic>> _createTrip(CreateTripRequest request) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(request.toJson());
+    final _options = _setStreamType<BaseModel<dynamic>>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/driver/trips',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late BaseModel<dynamic> _value;
+    try {
+      _value = BaseModel<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<BaseModel<dynamic>> createTrip(CreateTripRequest request) {
+    return ErrorAdapter<BaseModel<dynamic>>().adapt(() => _createTrip(request));
+  }
+
+  Future<BaseModel<TripResponse>> _fetchTrips(String status) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'status': status};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<BaseModel<TripResponse>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/driver/trips',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late BaseModel<TripResponse> _value;
+    try {
+      _value = BaseModel<TripResponse>.fromJson(
+        _result.data!,
+        (json) => TripResponse.fromJson(json as Map<String, dynamic>),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<BaseModel<TripResponse>> fetchTrips(String status) {
+    return ErrorAdapter<BaseModel<TripResponse>>().adapt(
+      () => _fetchTrips(status),
+    );
+  }
+
+  Future<BaseModel<dynamic>> _fetchTripsCount(String period) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'period': period};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<BaseModel<dynamic>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/driver/trips/stats/completed-count',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late BaseModel<dynamic> _value;
+    try {
+      _value = BaseModel<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<BaseModel<dynamic>> fetchTripsCount(String period) {
+    return ErrorAdapter<BaseModel<dynamic>>().adapt(
+      () => _fetchTripsCount(period),
+    );
+  }
+
+  Future<BaseModel<TripSummary>> _fetchTripSummary(String id) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<BaseModel<TripSummary>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/driver/trips/${id}/summary',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late BaseModel<TripSummary> _value;
+    try {
+      _value = BaseModel<TripSummary>.fromJson(
+        _result.data!,
+        (json) => TripSummary.fromJson(json as Map<String, dynamic>),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<BaseModel<TripSummary>> fetchTripSummary(String id) {
+    return ErrorAdapter<BaseModel<TripSummary>>().adapt(
+      () => _fetchTripSummary(id),
+    );
+  }
+
+  Future<BaseModel<List<BookingSummary>>> _fetchTripBookings(
+    String tripId, {
+    String? bookingStatus,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'bookingStatus': bookingStatus};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<BaseModel<List<BookingSummary>>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/driver/trips/${tripId}/bookings',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late BaseModel<List<BookingSummary>> _value;
+    try {
+      _value = BaseModel<List<BookingSummary>>.fromJson(
+        _result.data!,
+        (json) => json is List<dynamic>
+            ? json
+                  .map<BookingSummary>(
+                    (i) => BookingSummary.fromJson(i as Map<String, dynamic>),
+                  )
+                  .toList()
+            : List.empty(),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<BaseModel<List<BookingSummary>>> fetchTripBookings(
+    String tripId, {
+    String? bookingStatus,
+  }) {
+    return ErrorAdapter<BaseModel<List<BookingSummary>>>().adapt(
+      () => _fetchTripBookings(tripId, bookingStatus: bookingStatus),
+    );
+  }
+
+  Future<BaseModel<dynamic>> _approveTripBooking(
+    int tripId,
+    int bookingId,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<BaseModel<dynamic>>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/driver/trips/${tripId}/bookings/${bookingId}/accept',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late BaseModel<dynamic> _value;
+    try {
+      _value = BaseModel<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<BaseModel<dynamic>> approveTripBooking(int tripId, int bookingId) {
+    return ErrorAdapter<BaseModel<dynamic>>().adapt(
+      () => _approveTripBooking(tripId, bookingId),
+    );
+  }
+
+  Future<BaseModel<dynamic>> _declineTripBooking(
+    int tripId,
+    int bookingId,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<BaseModel<dynamic>>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/driver/trips/${tripId}/bookings/${bookingId}/reject',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late BaseModel<dynamic> _value;
+    try {
+      _value = BaseModel<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<BaseModel<dynamic>> declineTripBooking(int tripId, int bookingId) {
+    return ErrorAdapter<BaseModel<dynamic>>().adapt(
+      () => _declineTripBooking(tripId, bookingId),
+    );
+  }
+
+  Future<BaseModel<Trip>> _completeTrip(String id, int tripFeeGross) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = {'tripFeeGross': tripFeeGross};
+    final _options = _setStreamType<BaseModel<Trip>>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/driver/trips/${id}/complete',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late BaseModel<Trip> _value;
+    try {
+      _value = BaseModel<Trip>.fromJson(
+        _result.data!,
+        (json) => Trip.fromJson(json as Map<String, dynamic>),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<BaseModel<Trip>> completeTrip(String id, int tripFeeGross) {
+    return ErrorAdapter<BaseModel<Trip>>().adapt(
+      () => _completeTrip(id, tripFeeGross),
+    );
+  }
+
+  Future<BaseModel<dynamic>> _cancelTrip(String id) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<BaseModel<dynamic>>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/driver/trips/${id}/cancel',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late BaseModel<dynamic> _value;
+    try {
+      _value = BaseModel<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<BaseModel<dynamic>> cancelTrip(String id) {
+    return ErrorAdapter<BaseModel<dynamic>>().adapt(() => _cancelTrip(id));
+  }
+
+  Future<BaseModel<dynamic>> _verifyPassengerPins(
+    String tripId,
+    SafetyPinRequest request,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(request.toJson());
+    final _options = _setStreamType<BaseModel<dynamic>>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/driver/trips/${tripId}/verify-safety-pins',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late BaseModel<dynamic> _value;
+    try {
+      _value = BaseModel<dynamic>.fromJson(
+        _result.data!,
+        (json) => json as dynamic,
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<BaseModel<dynamic>> verifyPassengerPins(
+    String tripId,
+    SafetyPinRequest request,
+  ) {
+    return ErrorAdapter<BaseModel<dynamic>>().adapt(
+      () => _verifyPassengerPins(tripId, request),
     );
   }
 

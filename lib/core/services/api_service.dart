@@ -6,15 +6,27 @@ import 'package:retrofit/retrofit.dart';
 import '../../app/api_urls.dart';
 import '../config/custom_dio_exception.dart';
 import '../models/auth/auth_response.dart';
-import '../models/auth/driver_profile_request.dart';
-import '../models/auth/kyc_status_response.dart';
-import '../models/auth/verified_phone_response.dart';
+import '../models/auth/kyc_response.dart';
+import '../models/auth/us_kyc_preflight.dart';
+import '../models/auth/us_kyc_verification.dart';
+import '../models/bank/payout_bank.dart';
+import '../models/trip/trip_cost_request.dart';
+import '../models/bookings/booking_summary.dart';
+import '../models/trip/safety_pin_request.dart';
+import '../models/trip/trip_cost_summary.dart';
+import '../models/trip/trip_response.dart';
+import '../models/trip/trip_summary.dart';
+import '../models/user/profile_request.dart';
 import '../models/base.dart';
-import '../models/preference_setup.dart';
-import '../models/vehicle_setup/vehicle_details_response.dart';
+import '../models/preference.dart';
+import '../models/trip/create_trip_request.dart';
+import '../models/trip/trip.dart';
+import '../models/user/user_entity.dart';
+import '../models/vehicle_setup/vehicle_detail.dart';
 import '../models/vehicle_setup/vehicle_setup_request.dart';
 import '../models/wallet/transaction_summary.dart';
 import '../models/wallet/wallet_summary.dart';
+import '../models/wallet/withdrawal_response.dart';
 
 part 'api_service.g.dart';
 
@@ -37,29 +49,52 @@ abstract class ApiService {
   factory ApiService(Dio dio, {String? baseUrl}) = _ApiService;
 
   @POST(ApiUrls.login)
+  @Extra({'isPublic': true})
   Future<BaseModel> login(@Field("phone") String phone);
   @POST(ApiUrls.register)
+  @Extra({'isPublic': true})
   Future<BaseModel<AuthResponse>> register(@Field("phone") String phone);
-  @POST(ApiUrls.verifyOtp)
-  Future<BaseModel<VerifiedPhoneResponse>> verifyOtp(
+  @POST(ApiUrls.verifyLogin)
+  Future<BaseModel<AuthResponse>> verifyLogin(
+    @Field("phone") String phone,
     @Field("code") String code,
   );
+  @POST(ApiUrls.verifyOtp)
+  // @Extra({'requiresAuthToken': true})
+  Future<BaseModel<UserEntity>> verifyOtp(@Field("code") String code);
   @POST(ApiUrls.resendOtp)
+  // @Extra({'requiresAuthToken': true})
   Future<BaseModel> resendOtp();
 
   @MultiPart()
   @POST(ApiUrls.updateProfilePic)
+  // @Extra({'requiresAuthToken': true})
   Future<BaseModel> uploadProfilePicture(
     @Part(name: 'file', contentType: 'image/png') File image,
   );
   @PUT(ApiUrls.updateProfile)
-  Future<BaseModel<DriverProfileRequest>> updateProfile(
-    @Body() DriverProfileRequest request,
+  // @Extra({'requiresAuthToken': true})
+  Future<BaseModel<ProfileRequest>> updateProfile(
+    @Body() ProfileRequest request,
   );
 
+  @GET(ApiUrls.fetchProfile)
+  // @Extra({'requiresAuthToken': true})
+  Future<BaseModel<UserEntity>> fetchProfile();
+
+  //KYC Flow
+  @GET(ApiUrls.usKycStatus)
+  Future<BaseModel> fetchUSKycStatus();
+  @POST(ApiUrls.ngKycStatus)
+  Future<BaseModel> fetchNGKycStatus(
+    @Field("userId") int userId,
+    @Field("type") String type,
+    @Field("status") String status,
+  );
+  // ng kyc flow
   @MultiPart()
   @POST(ApiUrls.verifyNin)
-  Future<BaseModel> verifyNin(
+  Future<BaseModel<KycResponse>> verifyNin(
     @Part(name: 'identityType') String identityType,
     @Part(name: 'nin') String nin,
     @Part(name: 'selfie', contentType: 'image/png') File selfie,
@@ -67,15 +102,29 @@ abstract class ApiService {
   );
   @MultiPart()
   @POST(ApiUrls.verifyLicense)
-  Future<BaseModel> verifyLicense(
+  Future<BaseModel<KycResponse>> verifyLicense(
     @Part(name: 'licenseNumber') String licenseNumber,
     @Part(name: 'expiryDate') String expiryDate,
     @Part(name: 'front', contentType: 'image/png') File front,
     @Part(name: 'back', contentType: 'image/png') File back,
   );
-  @GET(ApiUrls.verificationStatus)
-  Future<BaseModel<KycResponse>> fetchVerificationStatus();
+  // us kyc flow
+  @MultiPart()
+  @POST(ApiUrls.attemptUSKyc)
+  Future<BaseModel<USKycPreflight>> attemptUSKyc(
+    @Part(name: 'ssn') String ssn,
+    @Part(name: 'dob') String dob,
+    @Part(name: 'driverLicenseNumber') String driverLicenseNumber,
+    @Part(name: 'driverLicenseState') String driverLicenseState,
+    @Part(name: 'zipcode') String zipcode,
+    @Part(name: 'licenseFront', contentType: 'image/png') File licenseFront,
+    @Part(name: 'licenseBack', contentType: 'image/png') File licenseBack,
+  );
+  @MultiPart()
+  @POST(ApiUrls.verifyUSKyc)
+  Future<BaseModel<USKycVerification>> verifyUSKyc();
 
+  // vehicle reg flow
   @POST(ApiUrls.addVehicleDetails)
   Future<BaseModel> addVehicleDetails(@Body() VehicleDetailsRequest request);
   @PUT(ApiUrls.addVehicleCapacity)
@@ -93,11 +142,11 @@ abstract class ApiService {
     @Part(name: 'photoOther', contentType: 'image/png') File photoOther,
   );
   @GET(ApiUrls.fetchVehicleDetails)
-  Future<BaseModel<VehicleDetailsResponse>> fetchVehicleDetails();
+  Future<BaseModel<VehicleDetail>> fetchVehicleDetails();
 
-  @GET(ApiUrls.fetchDriverPreference)
-  Future<BaseModel<PreferenceSetup>> fetchDriverPreference();
-  @GET(ApiUrls.setDriverPreference)
+  @GET(ApiUrls.fetchPreference)
+  Future<BaseModel<Preferences>> fetchDriverPreference();
+  @PUT(ApiUrls.setPreference)
   Future<BaseModel> setDriverPreference(
     @Field("idCheckRequired") bool idCheckRequired,
     @Field("packagesAllowed") bool packagesAllowed,
@@ -106,19 +155,86 @@ abstract class ApiService {
     @Field("petsAllowed") bool petsAllowed,
   );
 
-  @GET(ApiUrls.fetchDriverPayout)
-  Future<BaseModel> fetchDriverPayout();
-  @GET(ApiUrls.setDriverPayout)
+  /// Payout flow
+  @GET(ApiUrls.fetchPayout)
+  Future<BaseModel<PayoutBank>> fetchDriverPayout();
+  // ng payout
+  @PUT(ApiUrls.setNGPayout)
   Future<BaseModel> setDriverPayout(
     @Field("bankCode") String bankCode,
     @Field("bankName") String bankName,
     @Field("accountNumber") String accountNumber,
   );
+  // us payout
+  @PUT(ApiUrls.setUSRecipient)
+  Future<BaseModel> setUSRecipient(
+    @Field("contactEmail") String contactEmail,
+    @Field("displayName") String displayName,
+    @Field("entityType") String entityType,
+  );
+  @PUT(ApiUrls.setUSPayout)
+  Future<BaseModel> setUSPayout(
+    @Field("accountNumber") String accountNumber,
+    @Field("routingNumber") String routingNumber,
+    @Field("country") String country,
+  );
 
+  ///Wallet flow
   @GET(ApiUrls.walletDetails)
   Future<BaseModel<WalletSummary>> fetchUserWallet();
   @GET(ApiUrls.transactions)
-  Future<BaseModel<TransactionSummary>> fetchTransactions();
+  Future<BaseModel<List<TransactionItem>>> fetchTransactions();
+  @POST(ApiUrls.withdraw)
+  Future<BaseModel<WithdrawalResponse>> requestWithdrawal(
+    @Field("amount") double amount,
+  );
+
+  @POST(ApiUrls.tripCost)
+  Future<BaseModel<TripCostSummary>> fetchBookingCost(
+    @Body() TripCostRequest request,
+  );
+  @POST(ApiUrls.createTrip)
+  Future<BaseModel> createTrip(@Body() CreateTripRequest request);
+  //bookings
+  @GET(ApiUrls.trips)
+  Future<BaseModel<TripResponse>> fetchTrips(@Query("status") String status);
+  @GET(ApiUrls.tripsCount)
+  Future<BaseModel> fetchTripsCount(@Query("period") String period);
+  @GET(ApiUrls.tripSummary)
+  Future<BaseModel<TripSummary>> fetchTripSummary(@Path("id") String id);
+  @GET(ApiUrls.tripBookingSummary)
+  Future<BaseModel<List<BookingSummary>>> fetchTripBookings(
+    @Path("tripId") String tripId, {
+    @Query("bookingStatus") String? bookingStatus,
+  });
+  @POST(ApiUrls.acceptTripBooking)
+  Future<BaseModel> approveTripBooking(
+    @Path("tripId") int tripId,
+    @Path("bookingId") int bookingId,
+  );
+  @POST(ApiUrls.declineTripBooking)
+  Future<BaseModel> declineTripBooking(
+    @Path("tripId") int tripId,
+    @Path("bookingId") int bookingId,
+  );
+  @POST(ApiUrls.completeTrip)
+  Future<BaseModel<Trip>> completeTrip(
+    @Path("id") String id,
+    @Field("tripFeeGross") int tripFeeGross,
+  );
+  @POST(ApiUrls.cancelTrip)
+  Future<BaseModel> cancelTrip(@Path("id") String id);
+  @POST(ApiUrls.verityPassengerPins)
+  Future<BaseModel> verifyPassengerPins(
+    @Path("id") String tripId,
+    @Body() SafetyPinRequest request,
+  );
+
+  //chat
+  // Future<BaseModel<List<Conversation>>> getConversations();
+  // Future<BaseModel<List<ChatMessage>>> getMessageHistory(int conversationId);
+  // Future<BaseModel> sendMessage(int conversationId, String content);
+
   // @PUT(ApiUrls.updatePassword)
   // Future<BaseModel> updatePassword(@Body() AuthRequest updatePassword);
   //

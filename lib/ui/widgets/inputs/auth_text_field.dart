@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../utils/helpers/date_formatter_utils.dart';
+
 class AuthTextField extends StatefulWidget {
   final String label;
   final String? hint;
-  final TextEditingController controller;
+  final TextEditingController? controller;
   final IconData? prefixIcon;
   final TextInputType textInputType;
   final String? prefixSvg;
@@ -15,6 +17,7 @@ class AuthTextField extends StatefulWidget {
   final List<TextInputFormatter>? inputFormatters;
   final double? bottomMargin;
   final TextStyle? labelStyle;
+  final bool readOnly;
 
   const AuthTextField({
     super.key,
@@ -22,7 +25,7 @@ class AuthTextField extends StatefulWidget {
     this.hint,
     this.onChanged,
     this.labelTip,
-    required this.controller,
+    this.controller,
     this.prefixIcon = Icons.text_increase_rounded,
     required this.textInputType,
     this.prefixSvg,
@@ -31,6 +34,7 @@ class AuthTextField extends StatefulWidget {
     this.suffixIcon,
     this.bottomMargin,
     this.labelStyle,
+    this.readOnly = false,
   });
 
   @override
@@ -38,22 +42,22 @@ class AuthTextField extends StatefulWidget {
 }
 
 class _AuthTextFieldState extends State<AuthTextField> {
-  DateTime selectedDate = DateTime.now();
+  late final TextEditingController _controller;
+  DateTime? selectedDate = DateTime.now();
   bool hidePassword = true;
 
-  Future<void> _selectDate(BuildContext context) async {
+  Future<void> _selectDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDate,
       initialEntryMode: DatePickerEntryMode.calendar,
       firstDate: DateTime(1920, 8),
-      lastDate: selectedDate,
+      lastDate: DateTime.now(),
     );
     if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
-        widget.controller.text =
-            "${selectedDate.month} / ${selectedDate.day} / ${selectedDate.year}";
+        _controller.text = DateTimeHelper.toDisplayFormat(picked);
       });
     }
   }
@@ -62,6 +66,12 @@ class _AuthTextFieldState extends State<AuthTextField> {
     setState(() {
       hidePassword = !hidePassword;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = widget.controller ?? TextEditingController();
   }
 
   @override
@@ -95,11 +105,12 @@ class _AuthTextFieldState extends State<AuthTextField> {
         ),
         SizedBox(height: 8.0),
         TextFormField(
-          controller: widget.controller,
+          controller: _controller,
           keyboardType: widget.textInputType,
           obscureText:
               widget.textInputType == TextInputType.visiblePassword &&
               hidePassword,
+          readOnly: widget.readOnly,
           validator:
               widget.validator ??
               (val) {
@@ -164,7 +175,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
       return InkWell(
         splashFactory: NoSplash.splashFactory,
         splashColor: theme.splashColor,
-        onTap: () => _selectDate(context),
+        onTap: _selectDate,
         child: const Padding(
           padding: EdgeInsets.all(4.0),
           child: Icon(Icons.calendar_month),
