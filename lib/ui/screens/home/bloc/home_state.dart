@@ -36,8 +36,8 @@ class HomeState extends Equatable {
 
   bool isFullyOnboarded(String countryCode) {
     bool base =
-        verification == ActionStatus.pending &&
-        vehicle == ActionStatus.pending &&
+        verification == ActionStatus.completed &&
+        vehicle == ActionStatus.completed &&
         preference == ActionStatus.completed &&
         payout == ActionStatus.completed;
 

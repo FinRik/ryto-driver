@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ryto_driver/core/routes/router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../app/res/icons.dart';
 import '../../../../core/models/wallet/transaction_summary.dart';
-import '../../../../core/routes/routes.dart';
+import '../../../widgets/buttons/back_arrow_button.dart';
+import '../../../widgets/currency_formatter_widget.dart';
 import '../../../widgets/customs/custom_action_tile.dart';
 import '../../../widgets/customs/svg_widget.dart';
 import '../../../widgets/layouts/base_scaffold_widget.dart';
@@ -17,6 +18,14 @@ class TransactionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseScaffoldWidget(
+      appBar: AppBar(
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: BackArrowButton(),
+        ),
+        title: Text("Transactions"),
+        backgroundColor: Colors.white,
+      ),
       child: BlocBuilder<WalletBloc, WalletState>(
         builder: (context, state) {
           if (state.transactionsStatus == TransactionsStatus.loading &&
@@ -39,12 +48,15 @@ class TransactionsScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               final item = state.transactions![index];
               return CustomActionTile(
-                onTap: () =>
-                    router.push(Paths.TRANSACTIONDETAIL, extra: item.id),
+                onTap: () {},
+                  // router.push(Paths.TRANSACTIONDETAIL, extra: item.id),
                 leadingIcon: SvgWidget(
-                  assetName: item.type == TransactionType.packagePayout
-                      ? AppIcons.packagePayoutIcon
-                      : item.type == TransactionType.tripEarning
+                  // assetName: item.type == TransactionType.packagePayout
+                  //     ? AppIcons.packagePayoutIcon
+                  //     : item.type == TransactionType.tripEarning
+                  //     ? AppIcons.tripPayoutIcon
+                  //     : AppIcons.walletPayoutIcon,
+                  assetName: item.type == TransactionType.tripEarning
                       ? AppIcons.tripPayoutIcon
                       : AppIcons.walletPayoutIcon,
                 ),
@@ -53,13 +65,21 @@ class TransactionsScreen extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                 ),
-                subtitle: Text(item.createdAt.toString()),
-                trailing: Text(
-                  "${item.isCredit ? '+' : '-'}${item.currency}${item.amount}",
-                  style: TextStyle(
-                    color: item.isCredit ? Colors.green : Colors.red,
-                    fontWeight: FontWeight.bold,
-                  ),
+                subtitle: Text(
+                  DateFormat('MMM dd, yyyy · hh:mm a').format(item.createdAt),
+                ),
+                trailing: CurrencyFormatterWidget(
+                  amount: "${item.amount}",
+                  builder: (context, amount, rawAmount) {
+                    return Text(
+                      "${item.isCredit ? '+' : '-'}$amount",
+                      style: TextStyle(
+                        fontFamily: "Roboto",
+                        color: item.isCredit ? Colors.green : Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  },
                 ),
               );
             },

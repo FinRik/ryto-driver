@@ -2,83 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/app_setup_locator.dart';
 import '../../../../core/setups/region_identity_setup.dart';
+import '../../../styles/app_colors.dart';
 import '../../../widgets/currency_formatter_widget.dart';
 
-// class WalletBalanceCard extends StatelessWidget {
-//   final String currency;
-//   final double currentBalance;
-//   final VoidCallback onWithdraw;
-//   final VoidCallback onFundWallet;
-//
-//   const WalletBalanceCard({
-//     super.key,
-//     required this.currency,
-//     required this.currentBalance,
-//     required this.onWithdraw,
-//     required this.onFundWallet,
-//   });
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       width: double.infinity,
-//       padding: const EdgeInsets.all(24),
-//       decoration: BoxDecoration(
-//         color: const Color(0xFF1E88E5), // Primary blue from reference
-//         borderRadius: BorderRadius.circular(24),
-//         boxShadow: [
-//           BoxShadow(
-//             color: Colors.blue.withOpacity(0.2),
-//             blurRadius: 15,
-//             offset: const Offset(0, 8),
-//           )
-//         ],
-//       ),
-//       child: Column(
-//         children: [
-//           const Text(
-//             "Current Balance",
-//             style: TextStyle(color: Colors.white70, fontSize: 16),
-//           ),
-//           const SizedBox(height: 8),
-//           Text(
-//             "\$${currentBalance.toStringAsFixed(2).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}",
-//             style: const TextStyle(
-//               color: Colors.white,
-//               fontSize: 36,
-//               fontWeight: FontWeight.bold,
-//             ),
-//           ),
-//           const SizedBox(height: 24),
-//           Row(
-//             children: [
-//               Expanded(
-//                 child: _WalletActionButton(
-//                   label: "Withdraw",
-//                   icon: Icons.south_west, // Arrow pointing down-left
-//                   onPressed: onWithdraw,
-//                   isPrimary: true,
-//                 ),
-//               ),
-//               // const SizedBox(width: 12),
-//               // Expanded(
-//               //   child: _WalletActionButton(
-//               //     label: "Fund Wallet",
-//               //     icon: Icons.north_east, // Arrow pointing up-right
-//               //     onPressed: onFundWallet,
-//               //     isPrimary: false,
-//               //   ),
-//               // ),
-//             ],
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
 class WalletBalanceCard extends StatelessWidget {
-  final String currency;
   final double currentBalance;
   final bool isLoading;
   final VoidCallback onWithdraw;
@@ -86,7 +13,6 @@ class WalletBalanceCard extends StatelessWidget {
 
   const WalletBalanceCard({
     super.key,
-    required this.currency,
     required this.currentBalance,
     this.isLoading = false,
     required this.onWithdraw,
@@ -95,9 +21,6 @@ class WalletBalanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final region = sl<RegionIdentity>();
-
-
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -105,7 +28,7 @@ class WalletBalanceCard extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF1E88E5), Color(0xFF1565C0)], // Subtle gradient
+          colors: [AppColors.primary, Color(0xFF1565C0)], // Subtle gradient
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
@@ -124,7 +47,7 @@ class WalletBalanceCard extends StatelessWidget {
               const Text(
                 "Available Balance",
                 style: TextStyle(
-                  color: Colors.white70,
+                  color: Colors.white,
                   fontSize: 14,
                   letterSpacing: 0.5,
                 ),

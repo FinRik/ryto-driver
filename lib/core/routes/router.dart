@@ -291,7 +291,7 @@ final router = GoRouter(
       path: Paths.TRANSACTIONDETAIL,
       name: Routes.TRANSACTIONDETAIL,
       builder: (context, state) =>
-          TransactionDetailsScreen(transactionId: state.extra as String),
+          TransactionDetailsScreen(transactionId: state.extra as int),
     ),
 
     ///Profile Flow

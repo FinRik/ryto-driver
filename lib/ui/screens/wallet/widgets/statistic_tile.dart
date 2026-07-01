@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../widgets/currency_formatter_widget.dart';
+
 class StatisticTile extends StatelessWidget {
   final String currency;
   final String label;
@@ -11,7 +13,7 @@ class StatisticTile extends StatelessWidget {
     required this.currency,
     required this.label,
     required this.value,
-    this.valueColor = const Color(0xFF1B2559), // Default dark blue/black
+    this.valueColor = const Color(0xFF1B2559),
   });
 
   @override
@@ -36,9 +38,10 @@ class StatisticTile extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            value,
+          CurrencyFormatterWidget(
+            amount: value,
             style: TextStyle(
+              fontFamily: "Roboto",
               color: valueColor,
               fontSize: 22,
               fontWeight: FontWeight.bold,

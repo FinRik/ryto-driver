@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class TransactionDetailsScreen extends StatefulWidget {
-  final String transactionId;
+  final int transactionId;
   const TransactionDetailsScreen({super.key, required this.transactionId});
 
   @override
@@ -72,16 +72,16 @@ class _TransactionDetailsScreenState extends State<TransactionDetailsScreen> {
                     color: Color(0xFF1B2559),
                   ),
                 ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text(
-                    "Download PDF",
-                    style: TextStyle(
-                      color: Color(0xFF0061FF),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+                // TextButton(
+                //   onPressed: () {},
+                //   child: const Text(
+                //     "Download PDF",
+                //     style: TextStyle(
+                //       color: Color(0xFF0061FF),
+                //       fontWeight: FontWeight.w600,
+                //     ),
+                //   ),
+                // ),
               ],
             ),
             const SizedBox(height: 16),

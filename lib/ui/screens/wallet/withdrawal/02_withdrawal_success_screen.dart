@@ -50,7 +50,7 @@ class WithdrawalSuccessScreen extends StatelessWidget {
 
               Button(
                 onTap: () {
-                  router.go(
+                  router.replace(
                     Paths.WITHDRAWDETAIL,
                     extra: state.withdrawalResponse,
                   );
@@ -67,7 +67,7 @@ class WithdrawalSuccessScreen extends StatelessWidget {
                 child: Button.outline(
                   onTap: () {
                     // Navigator.of(context).popUntil((route) => route.isFirst);
-                    router.go(Paths.HOME);
+                    router.pop();
                   },
                   text: "Go Home",
                   textColor: Colors.yellow,

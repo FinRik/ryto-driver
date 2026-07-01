@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/models/wallet/withdrawal_response.dart';
+import '../../../../utils/helpers/socials_helper.dart';
 import '../../../widgets/currency_formatter_widget.dart';
 
 class WithdrawalDetailScreen extends StatelessWidget {
@@ -51,8 +53,8 @@ class WithdrawalDetailScreen extends StatelessWidget {
                   const SizedBox(height: 8),
                   CurrencyFormatterWidget(
                     amount: "${withdrawalResponse.amount}",
+                    textColor: Colors.white,
                     style: const TextStyle(
-                      color: Colors.white,
                       fontSize: 36,
                       fontWeight: FontWeight.bold,
                     ),
@@ -89,9 +91,9 @@ class WithdrawalDetailScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Text(
-                        "Processed on Oct 24, 2023",
-                        style: TextStyle(
+                      Text(
+                        "Processed on ${DateFormat('MMM dd, yyyy').format(withdrawalResponse.createdAt)}",
+                        style: const TextStyle(
                           color: Color(0xFF8F9BBA),
                           fontSize: 11,
                         ),
@@ -122,7 +124,7 @@ class WithdrawalDetailScreen extends StatelessWidget {
                   _buildDetailRow(
                     Icons.fingerprint,
                     "TRANSACTION ID",
-                    "withdrawalResponse.id",
+                    withdrawalResponse.providerRef,
                     isCopyable: true,
                   ),
                   const Divider(height: 32, color: Color(0xFFE0E5F2)),
@@ -280,7 +282,12 @@ class WithdrawalDetailScreen extends StatelessWidget {
             style: const TextStyle(color: Color(0xFF8F9BBA), fontSize: 12),
           ),
         if (isCopyable)
-          const Icon(Icons.copy_all, color: Color(0xFF8F9BBA), size: 18),
+          IconButton(
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: value));
+            },
+            icon: Icon(Icons.copy_all, color: Color(0xFF8F9BBA), size: 18),
+          ),
       ],
     );
   }
@@ -348,7 +355,7 @@ class WithdrawalDetailScreen extends StatelessWidget {
                   style: TextStyle(color: Color(0xFF8F9BBA), fontSize: 11),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () => SocialHelper.sendEmail("support@getryto.com"),
                   style: TextButton.styleFrom(
                     padding: EdgeInsets.zero,
                     minimumSize: const Size(0, 30),

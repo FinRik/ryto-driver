@@ -49,7 +49,7 @@ class _WithdrawalScreenState extends State<WithdrawalScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message ?? "Withdrawal Successful")),
           );
-          router.push(Paths.WITHDRAWSUCCESS);
+          router.replace(Paths.WITHDRAWSUCCESS);
         }
       },
       builder: (context, state) {

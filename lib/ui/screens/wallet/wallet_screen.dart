@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../../../app/res/icons.dart';
 import '../../../core/models/wallet/transaction_summary.dart';
 import '../../../core/routes/router.dart';
 import '../../../core/routes/routes.dart';
 import '../../widgets/app_bars/profile_app_bar.dart';
+import '../../widgets/currency_formatter_widget.dart';
 import '../../widgets/customs/custom_action_tile.dart';
 import '../../widgets/customs/svg_widget.dart';
 import '../../widgets/loaders/circular_indicator.dart';
@@ -14,141 +16,6 @@ import 'widgets/weekly_earnings_card.dart';
 import '../../widgets/layouts/base_scaffold_widget.dart';
 import 'widgets/statistic_tile.dart';
 import 'widgets/wallet_balance_card.dart';
-
-// class WalletScreen extends StatefulWidget {
-//   const WalletScreen({super.key});
-//
-//   @override
-//   State<WalletScreen> createState() => _WalletScreenState();
-// }
-//
-// class _WalletScreenState extends State<WalletScreen> {
-//   @override
-//   void initState() {
-//     super.initState();
-//     WidgetsBinding.instance.addPostFrameCallback((_) {
-//       context.read<WalletBloc>().add(FetchWalletDataRequested());
-//     });
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return BaseScaffoldWidget(
-//       appBar: ProfileAppBar(
-//         backgroundColor: Colors.white,
-//         disableBorder: true,
-//         bottom: Padding(
-//           padding: const EdgeInsets.symmetric(horizontal: 24),
-//           child: Row(
-//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//             children: [
-//               Text(
-//                 "Wallet & Earnings",
-//                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-//               ),
-//               CircleAvatar(radius: 23, child: Icon(Icons.help_outline)),
-//             ],
-//           ),
-//         ),
-//       ),
-//       child: BlocConsumer<WalletBloc, WalletState>(
-//         listener: (context, state) {
-//           if (state.walletStatus == WalletStatus.success) {
-//             context.read<WalletBloc>().add(FetchTransactionRequested());
-//           }
-//         },
-//         builder: (context, state) {
-//           return SingleChildScrollView(
-//             child: Column(
-//               children: [
-//                 WalletBalanceCard(
-//                   currency: "NGN",
-//                   currentBalance: 155000.00,
-//                   onWithdraw: () {},
-//                   onFundWallet: () {},
-//                 ),
-//                 const SizedBox(height: 16),
-//                 Row(
-//                   children: const [
-//                     Expanded(
-//                       child: StatisticTile(
-//                         currency: "NGN",
-//                         label: "Total Earnings",
-//                         value: "8,420.00",
-//                       ),
-//                     ),
-//                     SizedBox(width: 12),
-//                     Expanded(
-//                       child: StatisticTile(
-//                         currency: "NGN",
-//                         label: "Pending Payouts",
-//                         value: "320.50",
-//                         valueColor: Color(0xFF1E88E5), // Blue value for pending
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//                 SizedBox(height: 24),
-//                 WeeklyEarningsCard(
-//                   currency: "NGN",
-//                   dateRange: "Oct 14 - Oct 20",
-//                   totalAmount: 840.00,
-//                 ),
-//                 SizedBox(height: 24),
-//                 Row(
-//                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                   children: [
-//                     Text(
-//                       "Recent Transactions",
-//                       style: TextStyle(
-//                         fontSize: 18,
-//                         fontWeight: FontWeight.bold,
-//                       ),
-//                     ),
-//                     TextButton(onPressed: () {}, child: Text("View All")),
-//                   ],
-//                 ),
-//                 SizedBox(height: 16),
-//                 CustomActionTile(
-//                   leadingIcon: SvgWidget(assetName: AppSvgs.packageFilled),
-//                   title: 'Trip Payout - #RY9021',
-//                   titleStyle: const TextStyle(
-//                     fontWeight: FontWeight.bold,
-//                     fontSize: 14,
-//                   ),
-//                   subtitle: Text("Today, 2:45 PM"),
-//                   trailing: Text("+\$45.20"),
-//                 ),
-//                 SizedBox(height: 8),
-//                 CustomActionTile(
-//                   leadingIcon: SvgWidget(assetName: AppSvgs.packageFilled),
-//                   title: 'Trip Payout - #RY9021',
-//                   titleStyle: const TextStyle(
-//                     fontWeight: FontWeight.bold,
-//                     fontSize: 14,
-//                   ),
-//                   subtitle: Text("Today, 2:45 PM"),
-//                   trailing: Text("+\$45.20"),
-//                 ),
-//                 SizedBox(height: 8),
-//                 CustomActionTile(
-//                   leadingIcon: SvgWidget(assetName: AppSvgs.packageFilled),
-//                   title: 'Trip Payout - #RY9021',
-//                   titleStyle: const TextStyle(
-//                     fontWeight: FontWeight.bold,
-//                     fontSize: 14,
-//                   ),
-//                   subtitle: Text("Today, 2:45 PM"),
-//                   trailing: Text("+\$45.20"),
-//                 ),
-//               ],
-//             ),
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }
 
 class WalletScreen extends StatefulWidget {
   const WalletScreen({super.key});
@@ -218,7 +85,6 @@ class _WalletScreenState extends State<WalletScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   WalletBalanceCard(
-                    currency: wallet?.currency ?? "NGN",
                     currentBalance: wallet?.currentBalance ?? 0.0,
                     isLoading: state.walletStatus == WalletStatus.loading,
                     onWithdraw: () => router.push(Paths.WITHDRAWFUND),
@@ -248,7 +114,8 @@ class _WalletScreenState extends State<WalletScreen> {
                   const SizedBox(height: 24),
                   WeeklyEarningsCard(
                     breakdown: wallet?.earningsByWeekday ?? {},
-                    totalAmount: wallet?.earningsByWeekday.values.fold(
+                    totalAmount:
+                        wallet?.earningsByWeekday.values.fold(
                           0.0,
                           (sum, amount) => sum! + amount,
                         ) ??
@@ -304,11 +171,10 @@ class _WalletScreenState extends State<WalletScreen> {
       itemBuilder: (context, index) {
         final item = state.transactions![index];
         return CustomActionTile(
-          onTap: () => router.push(Paths.TRANSACTIONDETAIL, extra: item.id),
+          onTap: () {},
+          // router.push(Paths.TRANSACTIONDETAIL, extra: item.id),
           leadingIcon: SvgWidget(
-            assetName: item.type == TransactionType.packagePayout
-                ? AppIcons.packagePayoutIcon
-                : item.type == TransactionType.tripEarning
+            assetName: item.type == TransactionType.tripEarning
                 ? AppIcons.tripPayoutIcon
                 : AppIcons.walletPayoutIcon,
           ),
@@ -317,13 +183,21 @@ class _WalletScreenState extends State<WalletScreen> {
             fontWeight: FontWeight.bold,
             fontSize: 14,
           ),
-          subtitle: Text(item.createdAt.toString()),
-          trailing: Text(
-            "${item.isCredit ? '+' : '-'}${item.currency}${item.amount}",
-            style: TextStyle(
-              color: item.isCredit ? Colors.green : Colors.red,
-              fontWeight: FontWeight.bold,
-            ),
+          subtitle: Text(
+            DateFormat('MMM dd, yyyy · hh:mm a').format(item.createdAt),
+          ),
+          trailing: CurrencyFormatterWidget(
+            amount: "${item.amount}",
+            builder: (ctx, amount, rawAmount) {
+              return Text(
+                "${item.isCredit ? '+' : '-'}$amount",
+                style: TextStyle(
+                  fontFamily: "Roboto",
+                  color: item.isCredit ? Colors.green : Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              );
+            },
           ),
         );
       },
