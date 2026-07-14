@@ -6,7 +6,6 @@ import '../../../core/routes/routes.dart';
 import '../../../utils/helpers/socials_helper.dart';
 import '../../widgets/buttons/back_arrow_header.dart';
 import '../../widgets/layouts/base_scaffold_widget.dart';
-import 'widgets/support_action_tile.dart';
 import 'widgets/support_category_card.dart';
 
 class HelpSupportScreen extends StatelessWidget {
@@ -61,25 +60,25 @@ class HelpSupportScreen extends StatelessWidget {
                   icon: Icons.person_outline,
                   label: "Account & Profile",
                   iconColor: Colors.blue,
-                  onTap: () => SocialHelper.sendEmail("support@getryto.com"),
+                  onTap: () => SocialHelper.sendEmail("support@getryto.com",subject: "Account & Profile"),
                 ),
                 SupportCategoryCard(
                   icon: Icons.account_balance_wallet_outlined,
                   label: "Earnings & Payouts",
                   iconColor: Colors.green,
-                  onTap: () => SocialHelper.sendEmail("support@getryto.com"),
+                  onTap: () => SocialHelper.sendEmail("support@getryto.com", subject: "Earnings & Payouts"),
                 ),
                 SupportCategoryCard(
                   icon: Icons.car_rental,
                   label: "Trip Issues",
                   iconColor: Colors.orange,
-                  onTap: () => SocialHelper.sendEmail("support@getryto.com"),
+                  onTap: () => SocialHelper.sendEmail("support@getryto.com", subject: "Trip Issues"),
                 ),
                 SupportCategoryCard(
                   icon: Icons.phonelink_setup,
                   label: "App Technical Support",
                   iconColor: Colors.purple,
-                  onTap: () => SocialHelper.sendEmail("support@getryto.com"),
+                  onTap: () => SocialHelper.sendEmail("support@getryto.com", subject: "App Technical Support"),
                 ),
               ],
             ),
@@ -115,7 +114,7 @@ class HelpSupportScreen extends StatelessWidget {
             const SizedBox(height: 40),
             const Center(
               child: Text(
-                "APP VERSION 2.4.1\n(102)",
+                "APP VERSION 1.0.0\n(10)",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Color(0xFF8F9BBA),

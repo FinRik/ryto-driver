@@ -190,7 +190,10 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                       ),
 
                       const SizedBox(height: 19),
-                      _buildRegionNotification(),
+                      VerifiedDataNotification(
+                        title: "Provide verified information",
+                        message: "Enter your details exactly as it appears on your government-issued ID.",
+                      ),
                       const SizedBox(height: 8),
 
                       // Form Fields
@@ -238,7 +241,8 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                             ? "Date of birth is required"
                             : null,
                       ),
-
+                      _buildRegionNotification(),
+                      const SizedBox(height: 16),
                       AuthTextField(
                         controller: _nationalityController,
                         textInputType: TextInputType.text,

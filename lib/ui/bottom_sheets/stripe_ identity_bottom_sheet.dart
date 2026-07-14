@@ -7,6 +7,7 @@ import 'package:stripe_identity_plugin/utils/identity_style.dart';
 import '../../app/res/icons.dart';
 import '../../app/res/svgs.dart';
 import '../../core/services/bottom_sheet_service.dart';
+import '../dialogs/verification_result_dialog.dart';
 import '../screens/pending_setup/verification_setup/bloc/verification_setup_bloc.dart';
 import '../widgets/buttons/button.dart';
 import '../widgets/customs/svg_widget.dart';
@@ -83,7 +84,7 @@ class _StripeIdentityBottomSheetState extends State<StripeIdentityBottomSheet> {
             ephemeralKey = state.verificationResponse?.ephemeralKeySecret;
           });
 
-            // Smoothly slide to the Stripe action page now that we have the tokens
+          // Smoothly slide to the Stripe action page now that we have the tokens
           if (_hasValidCredentials) {
             _navigateToNextPage();
           }
@@ -98,7 +99,10 @@ class _StripeIdentityBottomSheetState extends State<StripeIdentityBottomSheet> {
             physics: const NeverScrollableScrollPhysics(),
             children: [
               // PAGE 0: Preflight Completion / Setup Page
-              _buildPreflightPage(context, state == UsKycStep.loading),
+              _buildPreflightPage(
+                context,
+                state.usKycStep == UsKycStep.loading,
+              ),
 
               // PAGE 1: Stripe Verification Trigger Page
               _buildStripeVerificationPage(context),
@@ -133,9 +137,7 @@ class _StripeIdentityBottomSheetState extends State<StripeIdentityBottomSheet> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SvgWidget(
-            assetName: AppSvgs.checkmark,
-          ),
+          SvgWidget(assetName: AppSvgs.checkmark),
           HeaderText(
             label: "Ready for Verification",
             subText:
@@ -164,9 +166,7 @@ class _StripeIdentityBottomSheetState extends State<StripeIdentityBottomSheet> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgWidget(
-              assetName: AppIcons.face,
-            ),
+            SvgWidget(assetName: AppIcons.face),
             HeaderText(
               label: "Identity Check",
               subText:
@@ -177,7 +177,7 @@ class _StripeIdentityBottomSheetState extends State<StripeIdentityBottomSheet> {
             ),
             const SizedBox(height: 24),
             Button(
-              onTap: () => _handleStripeVerification(context),
+              onTap: () => _handleVerification(context),
               text: ("Start verification"),
             ),
           ],
@@ -186,7 +186,7 @@ class _StripeIdentityBottomSheetState extends State<StripeIdentityBottomSheet> {
     );
   }
 
-  Future<void> _handleStripeVerification(BuildContext context) async {
+  Future<void> _handleVerification(BuildContext context) async {
     if (!_hasValidCredentials) return;
 
     setState(() => isLoading = true);
@@ -208,23 +208,35 @@ class _StripeIdentityBottomSheetState extends State<StripeIdentityBottomSheet> {
 
     switch (response.$1) {
       case VerificationResult.completed:
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.$2 ?? "Verification completed")),
-        );
-        widget.completer(
-          SheetResponse(confirmed: true),
+        VerificationResultDialog.show(
+          context,
+          title: "Success",
+          message: response.$2 ?? "Verification completed successfully.",
+          isSuccess: true,
+          onDismiss: () => widget.completer(
+            SheetResponse(
+              confirmed: true,
+              data: true
+            )
+          ),
         );
         break;
       case VerificationResult.failed:
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.$2 ?? "Verification failed")),
+        VerificationResultDialog.show(
+          context,
+          title: "Verification Failed",
+          message:
+              response.$2 ?? "The identity validation request was declined.",
+          isSuccess: false,
         );
         break;
       default:
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(response.$2 ?? "Verification couldn't be completed"),
-          ),
+        VerificationResultDialog.show(
+          context,
+          title: "Status Pending",
+          message:
+              response.$2 ?? "Verification couldn't be completed completely.",
+          isSuccess: false,
         );
     }
   }

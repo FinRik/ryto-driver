@@ -31,7 +31,6 @@ Future<void> setupBottomSheetUi() async {
     //     BottomSheetType.verifyNumber: (request, completer) => VerifyOtpBottomSheet(request: request, completer: completer),
     //     BottomSheetType.transferPin: (request, completer) => TransferPinBottomSheet(request: request, completer: completer),
     //     BottomSheetType.manualAccounts: (request, completer) => ManualAccountsBottomSheet(request: request, completer: completer),
-    //
   };
 
   bottomSheetService.setCustomSheetBuilders(builders);

@@ -58,9 +58,9 @@ class MockPendingSetupRepoImpl implements PendingSetupRepo {
     await _simulateNetworkDelay();
     // Assuming this returns the keys Stripe requires for step 2
     return USKycVerification(
-      verificationSessionId: "vi_mock_${DateTime.now().millisecondsSinceEpoch}",
+      verificationSessionId: "vs_1ToPCuF6vQuzprN10kt7DFim",
       ephemeralKeySecret:
-          "ek_mock_secret_${DateTime.now().microsecondsSinceEpoch}",
+          "ek_live_YWNjdF8xU0xLZzNGNnZRdXpwck4xLEpvbXVlRWZ2ZWZrSXd3SU5wcld4WkFxNEZabER4a20_00Mx7M6nrF",
     );
   }
 

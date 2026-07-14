@@ -268,7 +268,7 @@ class VerificationSetupBloc
         emit(
           state.copyWith(
             usKycStep: UsKycStep.failure,
-            errorMessage: () => e.toString(),
+            errorMessage: () => "Failed to complete verification process, please try again",
           ),
         );
       }
