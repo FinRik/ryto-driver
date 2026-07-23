@@ -4,8 +4,8 @@ enum BottomSheetType {
   fetchCities,
   chat,
   verification,
-  mapNavigation
-  // transactionStatus,
+  mapNavigation,
+  cancelTrip,
   // transactionTime,
   // verifyNumber,
   // transferPin,

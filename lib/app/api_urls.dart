@@ -88,8 +88,9 @@ class ApiUrls {
   static const String tripBookingSummary = "/driver/trips/{tripId}/bookings";
   static const String acceptTripBooking =
       "/driver/trips/{tripId}/bookings/{bookingId}/accept";
-  static const String declineTripBooking =
-      "/driver/trips/{tripId}/bookings/{bookingId}/reject";
+  // static const String declineTripBooking =
+  //     "/driver/trips/{tripId}/bookings/{bookingId}/reject";
+  static const String declineTripBooking = "/booking/cancel/driver";
   static const String completeTrip = "/driver/trips/{id}/complete";
   static const String cancelTrip = "/driver/trips/{id}/cancel";
   static const String verityPassengerPins = "/driver/trips/{id}/verify-safety-pins";

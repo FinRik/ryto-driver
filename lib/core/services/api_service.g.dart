@@ -1686,18 +1686,21 @@ class _ApiService implements ApiService {
   }
 
   Future<BaseModel<dynamic>> _declineTripBooking(
-    int tripId,
+    String reason,
     int bookingId,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
+    final Map<String, dynamic> _data = {
+      'reason': reason,
+      'bookingId': bookingId,
+    };
     final _options = _setStreamType<BaseModel<dynamic>>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/driver/trips/${tripId}/bookings/${bookingId}/reject',
+            '/booking/cancel/driver',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -1718,9 +1721,9 @@ class _ApiService implements ApiService {
   }
 
   @override
-  Future<BaseModel<dynamic>> declineTripBooking(int tripId, int bookingId) {
+  Future<BaseModel<dynamic>> declineTripBooking(String reason, int bookingId) {
     return ErrorAdapter<BaseModel<dynamic>>().adapt(
-      () => _declineTripBooking(tripId, bookingId),
+      () => _declineTripBooking(reason, bookingId),
     );
   }
 

@@ -5,6 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../../utils/storage/fcm_token_storage.dart';
+import '../models/driver_notification.dart';
 
 @pragma('vm:entry-point')
 void onLocalNotificationTapBackground(NotificationResponse response) {
@@ -13,18 +14,18 @@ void onLocalNotificationTapBackground(NotificationResponse response) {
   );
 }
 
-class PushNotificationManager {
+class PushNotificationService {
   final _notificationPlugin = FlutterLocalNotificationsPlugin();
 
-  static final PushNotificationManager _instance =
-      PushNotificationManager._internal();
+  static final PushNotificationService _instance =
+      PushNotificationService._internal();
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
-  factory PushNotificationManager() {
+  factory PushNotificationService() {
     return _instance;
   }
 
-  PushNotificationManager._internal();
+  PushNotificationService._internal();
 
   Future<void> initNotification() async {
     // Request permission
@@ -85,6 +86,20 @@ class PushNotificationManager {
         debugPrint(
           'From Foreground: Notification clicked with payload: ${response.payload}',
         );
+
+        if (response.payload != null && response.payload!.isNotEmpty) {
+          try {
+            final Map<String, dynamic> data = json.decode(response.payload!);
+
+            // Parse into DriverNotification model
+            final notification = DriverNotification.fromJson(data);
+
+            // Dispatch navigation or handling logic
+            _handleNotificationAction(notification);
+          } catch (e) {
+            debugPrint('Failed to parse notification click payload: $e');
+          }
+        }
       },
     );
 
@@ -149,6 +164,56 @@ class PushNotificationManager {
     debugPrint(
       'Local notification displayed with payload: ${json.encode(message.data)}',
     );
+  }
+  
+  Future<void> showSocketNotification(DriverNotification message) async {
+    final androidPlatformChannelSpecifics = const AndroidNotificationDetails(
+      'high_importance_channel',
+      'High Importance Notifications',
+      importance: Importance.max,
+      priority: Priority.high,
+      showWhen: true,
+    );
+
+    final iosPlatformChannelSpecifics = const DarwinNotificationDetails();
+
+    final platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+      iOS: iosPlatformChannelSpecifics,
+    );
+
+    await _notificationPlugin.show(
+      id: message.hashCode,
+      title: message.title,
+      body: message.body,
+      notificationDetails: platformChannelSpecifics,
+      payload: json.encode(message),
+    );
+
+    debugPrint(
+      'Local notification displayed with payload: ${json.encode(message)}',
+    );
+  }
+
+  void _handleNotificationAction(DriverNotification notification) {
+    switch (notification.type) {
+      case 'ride_request':
+      case 'trip_payment':
+      case 'booking_verified':
+      case 'trip_reminder':
+        if (notification.tripId != null) {
+          // Example navigation:
+          // router.push('/trip-details', extra: notification.tripId);
+        }
+        break;
+
+      case 'new_message':
+        if (notification.chatId != null) {
+          // Example navigation:
+          // router.push('/chat', extra: notification.chatId);
+        }
+        break;
+    }
   }
 
   void _setFcmToken(String token) async =>

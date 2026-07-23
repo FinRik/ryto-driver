@@ -1,18 +1,20 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 
+import '../../app/app_setup_locator.dart';
+import '../../core/enums/bottom_sheet_type.dart';
 import '../../core/models/bookings/booking_summary.dart';
 import '../../core/models/lat_lng.dart';
 import '../../core/models/trip/trip_summary.dart';
 import '../../core/routes/router.dart';
 import '../../core/routes/routes.dart';
+import '../../core/services/bottom_sheet_service.dart';
 import '../widgets/arrival_time_widget.dart';
 import '../widgets/build_route_card.dart';
 import '../widgets/buttons/button.dart';
 import '../screens/trip_action/bloc/trip_action_bloc.dart';
 import '../widgets/currency_formatter_widget.dart';
 import '../widgets/layouts/base_bottom_sheet.dart';
-import '../widgets/location_fetch_builder.dart';
 
 class PassengerActionBottomSheet extends StatelessWidget {
   final BookingSummary bookingSummary;
@@ -108,7 +110,7 @@ class PassengerActionBottomSheet extends StatelessWidget {
               //   ],
               // ),
               // const SizedBox(height: 24),
-          
+
               // 2. Passenger Info Card
               Container(
                 padding: const EdgeInsets.all(16),
@@ -145,7 +147,9 @@ class PassengerActionBottomSheet extends StatelessWidget {
                               const SizedBox(width: 4),
                               Text(
                                 "${bookingSummary.passenger.rating} • ${bookingSummary.passenger.tripCount} trips",
-                                style: const TextStyle(color: Color(0xFF8F9BBA)),
+                                style: const TextStyle(
+                                  color: Color(0xFF8F9BBA),
+                                ),
                               ),
                             ],
                           ),
@@ -156,7 +160,7 @@ class PassengerActionBottomSheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-          
+
               // 3. Route Details (Simplified FareRouteCard)
               // _buildRouteNode(
               //   Icons.circle,
@@ -188,10 +192,7 @@ class PassengerActionBottomSheet extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: const Color(0xFF0061FF),
-                    width: 2,
-                  ),
+                  border: Border.all(color: const Color(0xFF0061FF), width: 2),
                 ),
                 child: Column(
                   children: [
@@ -245,9 +246,9 @@ class PassengerActionBottomSheet extends StatelessWidget {
                   ],
                 ),
               ),
-          
+
               const SizedBox(height: 24),
-          
+
               // 4. Trip Stats (Distance & Time)
               Row(
                 children: [
@@ -282,7 +283,7 @@ class PassengerActionBottomSheet extends StatelessWidget {
                   Expanded(
                     child: _buildStatTile(
                       Icons.airline_seat_recline_normal_outlined,
-                      "SEATS(s) BOOKED",
+                      "SEAT(s) BOOKED",
                       "${bookingSummary.seats}",
                     ),
                   ),
@@ -297,7 +298,7 @@ class PassengerActionBottomSheet extends StatelessWidget {
                     ),
                 ],
               ),
-          
+
               // 6. Package / Recipient Details (conditional)
               if (bookingSummary.packageType != null &&
                   bookingSummary.packageRecipientName != null &&
@@ -385,7 +386,7 @@ class PassengerActionBottomSheet extends StatelessWidget {
                   final bool isProcessing =
                       state.status == TripActionStatus.loading &&
                       state.processingId == bookingSummary.id.toString();
-          
+
                   return Row(
                     children: [
                       Expanded(
@@ -401,13 +402,20 @@ class PassengerActionBottomSheet extends StatelessWidget {
                               state.lastAction == 'decline_booking',
                           onTap: isProcessing
                               ? null
-                              : () {
-                                  context.read<TripActionsBloc>().add(
-                                    DeclineBookingConfirmed(
-                                      tripId: tripSummary.id,
-                                      bookingId: bookingSummary.id,
-                                    ),
-                                  );
+                              : () async {
+                                  final res = await sl<BottomSheetService>()
+                                      .showCustomBottomSheet<void, String>(
+                                        variant: BottomSheetType.cancelTrip,
+                                      );
+                                  if (res?.confirmed == true) {
+                                    context.read<TripActionsBloc>().add(
+                                      DeclineBookingConfirmed(
+                                        // tripId: tripSummary.id,
+                                        reason: res!.data!,
+                                        bookingId: bookingSummary.id,
+                                      ),
+                                    );
+                                  }
                                 },
                         ),
                       ),

@@ -16,7 +16,7 @@ final localNotification = FlutterLocalNotificationsPlugin();
 @pragma('vm:entry-point')
 Future<void> handleBackgroundMessage(RemoteMessage message) async {
   final notification = message.notification;
-  PushNotificationManager().showNotification(
+  PushNotificationService().showNotification(
     notification!,
     message,
   );

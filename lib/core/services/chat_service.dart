@@ -7,39 +7,8 @@ import '../../app/api_urls.dart';
 import '../../utils/storage/token_storage.dart';
 import '../models/chat/chat_message.dart';
 import '../models/chat/conversation.dart';
-
-// class ChatService {
-//   final Dio _dio;
-//
-//   ChatService(Dio dio) : _dio = dio;
-//
-//   Future<Conversation> getOrCreateConversation({
-//     required int tripId,
-//     required List<int> participantIds,
-//   }) async {
-//     final response = await _dio.post(
-//       '/chat/conversations',
-//       data: {"participantIds": participantIds, "tripId": tripId},
-//     );
-//     return Conversation.fromJson(response.data['data']);
-//   }
-//
-//   Future<List<Conversation>> getConversations() async {
-//     final response = await _dio.get('/chat/conversations');
-//     // Extracting from the "data" list in your example
-//     final List data = response.data['data'];
-//     return data.map((json) => Conversation.fromJson(json)).toList();
-//   }
-//
-//   Future<List<ChatMessage>> getMessageHistory(int conversationId) async {
-//     final response = await _dio.get(
-//       '/chat/conversations/$conversationId/messages',
-//     );
-//     // Note: In your example, messages are inside data['data']['items']
-//     final List items = response.data['data']['items'];
-//     return items.map((json) => ChatMessage.fromJson(json)).toList();
-//   }
-// }
+import '../models/driver_notification.dart';
+import 'push_notification_manager.dart';
 
 class ChatService {
   final Dio _dio;
@@ -48,6 +17,9 @@ class ChatService {
   // Stream to broadcast new messages as they arrive via socket
   final _messageController = StreamController<ChatMessage>.broadcast();
   Stream<ChatMessage> get onNewMessage => _messageController.stream;
+
+  final _notificationController = StreamController<DriverNotification>.broadcast();
+  Stream<DriverNotification> get onNotification => _notificationController.stream;
 
   ChatService(Dio dio) : _dio = dio {
     _initSocket();
@@ -85,8 +57,24 @@ class ChatService {
     // Handle errors
     _socket!.on(
       'chat:error',
-          (data) => print('Socket Error: ${data['message']}'),
+      (data) => print('Socket Error: ${data['message']}'),
     );
+
+    _socket!.on('driver:notification', (data) {
+      try {
+        if (data is Map<String, dynamic>) {
+          final notification = DriverNotification.fromJson(data);
+
+          // 1. Push to in-app stream subscribers (e.g. Blocs, SnackBar overlays)
+          _notificationController.add(notification);
+
+          // 2. Trigger native heads-up system notification using your PushNotificationManager
+          PushNotificationService().showSocketNotification(notification);
+        }
+      } catch (e) {
+        print('Error handling driver socket notification: $e');
+      }
+    });
 
     _socket!.onConnectError((err) => print('Connect Error: $err'));
 
@@ -121,9 +109,9 @@ class ChatService {
   }
 
   Future<Conversation> createConversation(
-      int tripId,
-      List<int> participantIds,
-      ) async {
+    int tripId,
+    List<int> participantIds,
+  ) async {
     final response = await _dio.post(
       '/chat/conversations',
       data: {"participantIds": participantIds, "tripId": tripId},
@@ -143,5 +131,6 @@ class ChatService {
   void dispose() {
     _socket?.dispose();
     _messageController.close();
+    _notificationController.close();
   }
 }

@@ -19,7 +19,7 @@ class App {
     );
     await setupDependencies();
     await setupBottomSheetUi();
-    await PushNotificationManager().initNotification();
+    await PushNotificationService().initNotification();
     await initGoogleMapKey();
     HydratedBloc.storage = await HydratedStorage.build(
       storageDirectory: HydratedStorageDirectory(

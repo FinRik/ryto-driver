@@ -111,7 +111,7 @@ class TripActionsBloc extends Bloc<TripActionEvent, TripActionsState> {
       );
       try {
         final success = await repo.declineTripBooking(
-          event.tripId,
+          event.reason,
           event.bookingId,
         );
         if (success) {

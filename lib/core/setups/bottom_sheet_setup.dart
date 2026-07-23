@@ -1,4 +1,5 @@
 import '../../app/app_setup_locator.dart';
+import '../../ui/bottom_sheets/cancel_bottom_sheet.dart';
 import '../../ui/bottom_sheets/chat_bottom_sheet.dart';
 import '../../ui/bottom_sheets/cities_bottom_sheet.dart';
 import '../../ui/bottom_sheets/in_app_navigation_bottom_sheet.dart';
@@ -26,6 +27,8 @@ Future<void> setupBottomSheetUi() async {
         StripeIdentityBottomSheet(request: request, completer: completer),
     BottomSheetType.mapNavigation: (request, completer) =>
         InAppNavigationBottomSheet(request: request, completer: completer),
+    BottomSheetType.cancelTrip: (request, completer) =>
+        CancelBookingBottomSheet(request: request, completer: completer),
     //     BottomSheetType.serviceProviderPlan: (request, completer) => SelectServicePlanBottomSheet(request: request, completer: completer),
     //     BottomSheetType.strings: (request, completer) => StringsBottomSheet(request: request, completer: completer),
     //     BottomSheetType.transactionType: (request, completer) => SelectTransactionTypeBottomSheet(request: request, completer: completer),

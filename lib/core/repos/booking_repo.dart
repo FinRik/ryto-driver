@@ -18,7 +18,7 @@ abstract class BookingRepo {
     String? bookingStatus,
   });
   Future<bool> approveTripBooking(int tripId, int bookingId);
-  Future<bool> declineTripBooking(int tripId, int bookingId);
+  Future<bool> declineTripBooking(String reason, int bookingId);
   Future<bool> completeTrip(String id, int totalAmount);
   Future<bool> cancelTrip(String id);
   Future<bool> verifyPassengerPins(String tripId, SafetyPinRequest request);
@@ -86,8 +86,8 @@ class BookingRepoImpl implements BookingRepo {
   }
 
   @override
-  Future<bool> declineTripBooking(int tripId, int bookingId) async {
-    final res = await _apiService.declineTripBooking(tripId, bookingId);
+  Future<bool> declineTripBooking(String reason, int bookingId) async {
+    final res = await _apiService.declineTripBooking(reason, bookingId);
     return res.code == 200;
   }
 

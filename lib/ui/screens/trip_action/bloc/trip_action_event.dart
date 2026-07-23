@@ -47,16 +47,19 @@ class ApproveBookingConfirmed extends TripActionEvent {
 
 /// 4. Triggered when a specific bookings is declined
 class DeclineBookingConfirmed extends TripActionEvent {
-  final int tripId;
+  // final int tripId;
   final int bookingId;
+  final String reason;
 
   const DeclineBookingConfirmed({
-    required this.tripId,
+    // required this.tripId,
     required this.bookingId,
+    required this.reason,
+
   });
 
   @override
-  List<Object?> get props => [tripId, bookingId];
+  List<Object?> get props => [reason, bookingId];
 }
 
 /// 5. Triggered when passenger pins are submitted for verification
