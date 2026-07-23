@@ -86,12 +86,20 @@ dependencies:
   geolocator: ^14.0.2
   google_maps_flutter: ^2.10.0
   google_map_dynamic_key: ^1.0.1
+  maps_toolkit: ^3.1.0
+  google_maps_routes: ^1.1.2
 
   flutter_dotenv: ^6.0.0
 
   uuid: ^4.5.3
 
   local_auth: ^3.0.1
+  firebase_core: ^4.12.1
+  firebase_messaging: ^16.4.3
+  flutter_local_notifications: ^20.1.0
+
+dependency_overrides:
+  http: ^1.2.0
 
 dev_dependencies:
   flutter_test:

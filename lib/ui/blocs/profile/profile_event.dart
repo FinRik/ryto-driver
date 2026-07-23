@@ -31,3 +31,10 @@ class UpdateProfilePicRequested extends ProfileEvent {
   @override
   List<Object?> get props => [image];
 }
+
+class FCMTokenRequested extends ProfileEvent {
+  const FCMTokenRequested();
+
+  @override
+  List<Object?> get props => [];
+}

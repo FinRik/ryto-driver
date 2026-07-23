@@ -92,7 +92,7 @@ class PassengerActionCard extends StatelessWidget {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () async {
-                    if (bookingSummary.getFriendlyStatus == true) {
+                    if (bookingSummary.getBookingStatus == true) {
                       router.push(
                         Paths.APPROVEDPASSENGER,
                         extra: PassengerDetailsArgs(

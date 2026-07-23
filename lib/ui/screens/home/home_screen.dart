@@ -6,6 +6,7 @@ import '../../../app/app_setup_locator.dart';
 import '../../../app/res/icons.dart';
 import '../../../app/res/svgs.dart';
 import '../../../core/enums/action_status.dart';
+import '../../../core/repos/regional_manager_repo.dart';
 import '../../../core/routes/router.dart';
 import '../../../core/routes/routes.dart';
 import '../../../core/setups/region_identity_setup.dart';
@@ -65,6 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
       // 2. Fetch standard dashboard figures
       context.read<HomeBloc>().add(FetchDashboardDataEvent());
       // 3. Trigger individual background network tasks
+      context.read<ProfileBloc>().add(const FCMTokenRequested());
       context.read<ProfileBloc>().add(FetchUserProfile());
       context.read<VehicleSetupBloc>().add(FetchVehicleDetails());
       context.read<PayoutSetupBloc>().add(FetchPayoutRequested());
@@ -106,6 +108,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 return;
               }
 
+              context.read<RegionalManagerRepo>().setRegionManually(
+                user.country == "United States" ? "US" : "NG",
+              );
               context.read<HomeBloc>().add(
                 UpdateOnboardingState(
                   status: user.kycStatus,

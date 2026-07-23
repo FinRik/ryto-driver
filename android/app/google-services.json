@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "954307710903",
+    "project_id": "ryto-app-45d09",
+    "storage_bucket": "ryto-app-45d09.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:954307710903:android:9c5b42c6bc5504744d6232",
+        "android_client_info": {
+          "package_name": "com.ryto.customer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCb3kZR34ER0xY8Ba75za02xLDkcV0Nx_Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:954307710903:android:d0f664c330d437fa4d6232",
+        "android_client_info": {
+          "package_name": "com.ryto.driver"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCb3kZR34ER0xY8Ba75za02xLDkcV0Nx_Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

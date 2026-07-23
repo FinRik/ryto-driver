@@ -9,6 +9,7 @@ import '../setups/region_identity_setup.dart';
 abstract class RegionalManagerRepo {
   Future<void> initializeRegion();
   Future<String?> setRegion();
+  Future<void> setRegionManually(String detectedCode);
 }
 
 class RegionalManagerRepoImpl implements RegionalManagerRepo {
@@ -50,6 +51,16 @@ class RegionalManagerRepoImpl implements RegionalManagerRepo {
     } else {
       debugPrint("Selection dismissed. Defaulting to NG.");
       return null;
+    }
+  }
+
+  @override
+  Future<void> setRegionManually(String code) async {
+    try {
+      _registerIdentity(code);
+      debugPrint("Manual Selection: $code");
+    } catch (e) {
+      debugPrint("Selection dismissed. Defaulting to NG.");
     }
   }
 

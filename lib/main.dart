@@ -1,17 +1,34 @@
 import 'dart:io';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'app/app.dart';
 import 'core/config/multi_blocs_provider.dart';
 import 'core/config/multi_repo_provider.dart';
 import 'core/routes/router.dart';
+import 'core/services/push_notification_manager.dart';
 import 'ui/styles/app_theme.dart';
+
+final localNotification = FlutterLocalNotificationsPlugin();
+
+@pragma('vm:entry-point')
+Future<void> handleBackgroundMessage(RemoteMessage message) async {
+  final notification = message.notification;
+  PushNotificationManager().showNotification(
+    notification!,
+    message,
+  );
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
   await App.init();
+
+  // Add this to register the background handler at the top level
+  FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
   runApp(const MyApp());
 }
 

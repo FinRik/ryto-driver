@@ -9,6 +9,8 @@ part 'trip.g.dart';
 class Trip {
   final int id;
   final String status;
+  final String tripPhase;
+  final bool isDeparturePast;
   final String originCity;
   final String destinationCity;
 
@@ -33,6 +35,8 @@ class Trip {
   Trip({
     required this.id,
     required this.status,
+    required this.tripPhase,
+    required this.isDeparturePast,
     required this.originCity,
     required this.destinationCity,
     required this.departureDateTime,

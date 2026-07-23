@@ -17,6 +17,9 @@ abstract class AuthRepo {
   Future<bool> updateProfile(ProfileRequest request);
   Future<UserEntity?> fetchProfile();
   Future<bool> logout();
+
+  Future<bool> updateFCMToken(String token);
+  Future<bool> deleteFCMToken(String token);
 }
 
 class AuthRepoImpl implements AuthRepo {
@@ -100,5 +103,21 @@ class AuthRepoImpl implements AuthRepo {
   Future<bool> logout() async {
     final res = await TokenStorage.deleteAccessToken();
     return res;
+  }
+
+  @override
+  Future<bool> updateFCMToken(String token) async {
+    final isPlatformAndroid = Platform.isAndroid;
+    final response = await _apiService.updateFCMToken(
+      token: token,
+      platform: isPlatformAndroid ? "ANDROID" : "IOS",
+    );
+    return (response.code == 200);
+  }
+
+  @override
+  Future<bool> deleteFCMToken(String token) async {
+    final response = await _apiService.deleteFCMToken(token: token);
+    return (response.code == 200);
   }
 }

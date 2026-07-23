@@ -36,12 +36,30 @@ class TripSummary {
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   final DateTime updatedAt;
   final String currency;
+
+  // 1. Financial Fields
   final double? totalAmount;
   final double? driverNet;
   final double? commission;
   final double? platformCommissionPercentApplied;
+  final double? tripFeeGross;
+  final double? platformCommission;
+  final double? serviceFee;
+  final double? netProfit;
+  final double? estimatedEarnings;
+  final double? fee;
+  final int? commissionPercent;
 
-  // final List<Booking>? bookings;
+  // 2. Status and Metadata Fields
+  final String? tripPhase;
+  final bool? isDeparturePast;
+  @JsonKey(fromJson: _dateTimeNullableFromJson, toJson: _dateTimeNullableToJson)
+  final DateTime? tripReminderSentAt;
+
+  // 3. Nested Lists
+  final List<BookingSummary> bookings;
+  // final List<PassengerDetail>? passengerDetails;
+
   final double distanceKm;
   final int passengersBooked;
 
@@ -67,11 +85,25 @@ class TripSummary {
     required this.createdAt,
     required this.updatedAt,
     required this.currency,
+
+    // Added missing financial & metadata fields
     this.totalAmount,
     this.driverNet,
     this.commission,
     this.platformCommissionPercentApplied,
-    // required this.bookings,
+    this.tripFeeGross,
+    this.platformCommission,
+    this.serviceFee,
+    this.netProfit,
+    this.estimatedEarnings,
+    this.fee,
+    this.commissionPercent,
+    this.tripPhase,
+    this.isDeparturePast,
+    this.tripReminderSentAt,
+
+    required this.bookings,
+    // required this.passengerDetails,
     required this.distanceKm,
     required this.passengersBooked,
   });
@@ -86,6 +118,8 @@ class TripSummary {
   // Custom converters for DateTime
   static DateTime _dateTimeFromJson(String date) => DateTime.parse(date);
   static String _dateTimeToJson(DateTime date) => date.toIso8601String();
+  static DateTime? _dateTimeNullableFromJson(String? date) => date != null ? DateTime.parse(date) : null;
+  static String? _dateTimeNullableToJson(DateTime? date) => date?.toIso8601String();
 
   String get departureDate {
     if (departureDateTime == null) return "--:--";
@@ -102,28 +136,6 @@ class TripSummary {
     return DateTimeHelper.extractTime12Hour(departureDateTime.toString());
   }
 
-  // FRONTEND FALLBACK FINANCIAL CALCULATIONS
-  // Use these getters in your UI when the root backend fields return null
-  double calculateCalculatedEarnings(List<BookingSummary> fetchedBookings) {
-    if (totalAmount != null && totalAmount! > 0) return totalAmount!;
-    return fetchedBookings
-        .where((b) => b.bookingStatus == "DRIVER_ACCEPTED" || b.bookingStatus == "CONFIRMED")
-        .fold(0.0, (sum, item) => sum + (item.pricePaid ?? 0.0));
-  }
-
-  double calculateNetProfit(List<BookingSummary> fetchedBookings) {
-    if (driverNet != null && driverNet! > 0) return driverNet!;
-    double earnings = calculateCalculatedEarnings(fetchedBookings);
-    // Assuming a local fallback 10% platform fee if commission configuration is null
-    double feePercent = platformCommissionPercentApplied ?? 10.0;
-    return earnings * (1 - (feePercent / 100));
-  }
-
-  double calculateServiceFee(List<BookingSummary> fetchedBookings) {
-    if (commission != null) return commission!;
-    return calculateCalculatedEarnings(fetchedBookings) - calculateNetProfit(fetchedBookings);
-  }
-
   factory TripSummary.fromJson(Map<String, dynamic> json) =>
       _$TripSummaryFromJson(json);
   // Map<String, dynamic> toJson() => _$TripSummaryToJson(this);
@@ -137,53 +149,3 @@ class TripSummary {
     return map;
   }
 }
-
-// @JsonSerializable()
-// class Booking {
-//   final int id;
-//   final int tripId;
-//   final int passengerId;
-//   final int transactionId;
-//   final int seats;
-//   final String bookingStatus;
-//   final String safetyPin;
-//   final DateTime? driverPinVerifiedAt;
-//   final String? packageType;
-//   final double passengerPickupLat;
-//   final double passengerPickupLng;
-//   final double passengerDropoffLat;
-//   final double passengerDropoffLng;
-//   final String? packageSize;
-//   final double? packageWeight;
-//   final List<String> packageHandlingOptions;
-//   final String? packageContent;
-//   final double offsetKm;
-//   final DateTime createdAt;
-//
-//   Booking({
-//     required this.id,
-//     required this.tripId,
-//     required this.passengerId,
-//     required this.transactionId,
-//     required this.seats,
-//     required this.bookingStatus,
-//     required this.safetyPin,
-//     this.driverPinVerifiedAt,
-//     this.packageType,
-//     required this.passengerPickupLat,
-//     required this.passengerPickupLng,
-//     required this.passengerDropoffLat,
-//     required this.passengerDropoffLng,
-//     this.packageSize,
-//     this.packageWeight,
-//     required this.packageHandlingOptions,
-//     this.packageContent,
-//     required this.offsetKm,
-//     required this.createdAt,
-//   });
-//
-//   factory Booking.fromJson(Map<String, dynamic> json) =>
-//       _$BookingFromJson(json);
-//
-//   Map<String, dynamic> toJson() => _$BookingToJson(this);
-// }

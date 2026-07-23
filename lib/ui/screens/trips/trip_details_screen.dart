@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../../app/app_setup_locator.dart';
+import '../../../core/enums/bottom_sheet_type.dart';
 import '../../../core/models/trip/trip.dart';
+import '../../../core/models/trip/trip_summary.dart';
+import '../../../core/services/bottom_sheet_service.dart';
 import '../../widgets/arrival_time_widget.dart';
 import '../../widgets/buttons/back_arrow_button.dart';
 import '../../widgets/customs/event_state_widgets.dart';
@@ -25,6 +29,8 @@ class TripDetailsScreen extends StatefulWidget {
 }
 
 class _TripDetailsScreenState extends State<TripDetailsScreen> {
+  bool _hasOpenedNavigationSheet = false;
+
   @override
   void initState() {
     super.initState();
@@ -37,11 +43,33 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
     );
   }
 
+  void _openNavigationBottomSheet(TripSummary summary) {
+    sl<BottomSheetService>().showCustomBottomSheet<TripSummary, void>(
+      variant: BottomSheetType.mapNavigation,
+      data: summary,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BaseScaffoldWidget(
       removePadding: true,
-      child: BlocBuilder<TripsBloc, TripsState>(
+      child: BlocConsumer<TripsBloc, TripsState>(
+        // 1. LISTEN FOR STATE CHANGES (SIDE-EFFECTS)
+        listenWhen: (previous, current) {
+          final prevPhase = previous.selectedTrip?.tripPhase;
+          final currPhase = current.selectedTrip?.tripPhase;
+
+          // Trigger listener whenever phase transitions to IN_PROGRESS or initial state has IN_PROGRESS
+          return currPhase == "IN_PROGRESS" && prevPhase != "IN_PROGRESS";
+        },
+        listener: (context, state) {
+          final summary = state.selectedTrip;
+          if (summary != null && !_hasOpenedNavigationSheet) {
+            _hasOpenedNavigationSheet = true;
+            _openNavigationBottomSheet(summary);
+          }
+        },
         builder: (context, state) {
           if (state.summaryStatus == TripSummaryStatus.loading) {
             return const Center(child: CircularIndicator());
@@ -82,17 +110,39 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                 height: 280,
                 child: Stack(
                   children: [
-                    TripRouteMap(
+                    TripRouterMap(
                       height: 225,
                       olat: summary.originLat,
                       olng: summary.originLng,
                       dlat: summary.destinationLat,
                       dlng: summary.destinationLng,
+                      passengers: summary.bookings,
                       polylines: {
+                        // 1. Dynamic passenger paths
+                        ...(summary.bookings).map((e) {
+                          final String id = e.passenger.fullname;
+                          return Polyline(
+                            polylineId: PolylineId("passenger_path_$id"),
+                            color: Colors.amber,
+                            width: 4,
+                            points: [
+                              LatLng(
+                                e.passengerPickupLat,
+                                e.passengerPickupLng,
+                              ),
+                              LatLng(
+                                e.passengerDropoffLat,
+                                e.passengerDropoffLng,
+                              ),
+                            ],
+                          );
+                        }).toSet(),
+
+                        // 2. Global Driver Route Track
                         Polyline(
                           polylineId: const PolylineId("trip_route"),
-                          color: Colors.blue, // Gives the line a clear color
-                          width: 5, // Thickness of the path line
+                          color: Colors.blue,
+                          width: 5,
                           points: [
                             LatLng(summary.originLat, summary.originLng),
                             LatLng(summary.pickupLat, summary.pickupLng),
@@ -124,8 +174,16 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          const CircleAvatar(
-                            child: Icon(Icons.keyboard_arrow_down),
+                          CircleAvatar(
+                            child: IconButton(
+                              onPressed: () async =>
+                                  await sl<BottomSheetService>()
+                                      .showCustomBottomSheet<TripSummary, void>(
+                                        variant: BottomSheetType.mapNavigation,
+                                        data: summary,
+                                      ),
+                              icon: Icon(Icons.keyboard_arrow_down),
+                            ),
                           ),
                           SizedBox(height: 17.8),
                           ArrivalTimeWidget(

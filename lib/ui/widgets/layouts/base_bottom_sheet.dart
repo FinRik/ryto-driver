@@ -7,6 +7,7 @@ class BaseBottomSheet extends StatelessWidget {
   final Color? backgroundColor;
   final bool hasScrollableChild;
   final double? multiplier;
+  final EdgeInsets? padding;
 
   const BaseBottomSheet({
     super.key,
@@ -16,6 +17,7 @@ class BaseBottomSheet extends StatelessWidget {
     this.backgroundColor,
     this.hasScrollableChild = false,
     this.multiplier,
+    this.padding,
   });
 
   @override
@@ -26,7 +28,7 @@ class BaseBottomSheet extends StatelessWidget {
       type: MaterialType.transparency,
       child: Container(
         height: MediaQuery.sizeOf(context).height * (multiplier ?? .5),
-        padding: EdgeInsets.only(top: normPadding, right: 20, left: 20),
+        padding: padding ?? EdgeInsets.only(top: normPadding, right: 20, left: 20),
         decoration: BoxDecoration(
           color: backgroundColor ?? Colors.white,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
@@ -46,7 +48,7 @@ class BaseBottomSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(13),
                     ),
                   ),
-                  const SizedBox(height: 36),
+                  const SizedBox(height: 12),
                 ],
               ),
             Builder(
@@ -64,7 +66,7 @@ class BaseBottomSheet extends StatelessWidget {
                 }
               },
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
           ],
         ),
       ),

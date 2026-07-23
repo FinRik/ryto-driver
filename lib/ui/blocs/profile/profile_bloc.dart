@@ -6,6 +6,7 @@ import '../../../app/api_urls.dart';
 import '../../../core/models/user/profile_request.dart';
 import '../../../../../core/repos/auth_repo.dart';
 import '../../../core/models/user/user_entity.dart';
+import '../../../utils/storage/fcm_token_storage.dart';
 
 part 'profile_event.dart';
 part 'profile_state.dart';
@@ -17,6 +18,7 @@ class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
     on<FetchUserProfile>(_onFetchProfile);
     on<UpdateProfileRequested>(_onUpdateProfile);
     on<UpdateProfilePicRequested>(_onUpdatePic);
+    on<FCMTokenRequested>(_onSetFCMToken);
   }
 
   // 1. FETCH PROFILE
@@ -95,6 +97,43 @@ class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
         state.copyWith(
           uploadStatus: UploadStatus.failure,
           message: e.toString(),
+        ),
+      );
+    }
+  }
+
+  Future<void> _onSetFCMToken(
+      FCMTokenRequested event,
+      Emitter<ProfileState> emit,
+      ) async {
+    emit(state.copyWith(status: ProfileStatus.loading));
+    try {
+      final token = await FcmTokenStorage.getFCMToken();
+      if (token == null) {
+        return;
+      }
+
+      final result = await repo.updateFCMToken(token);
+      if (result) {
+        emit(
+          state.copyWith(
+            tokenStatus: TokenStatus.success,
+            message: "Token upload successful",
+          ),
+        );
+      } else {
+        emit(
+          state.copyWith(
+            tokenStatus: TokenStatus.failure,
+            message: "Token upload failed",
+          ),
+        );
+      }
+    } catch (e) {
+      emit(
+        state.copyWith(
+          tokenStatus: TokenStatus.failure,
+          message: "Token upload failed",
         ),
       );
     }

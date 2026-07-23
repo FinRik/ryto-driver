@@ -17,7 +17,7 @@ class AppString {
   static const String nairaSymbol = '\u20A6';
 
   //push notif
-  static const String fcmToken = 'fcmToken';
+  static const String fcmToken = 'fcm-token';
   static const String lastPromptDateKey = 'last_rating_prompt_date';
   static const String promptCountKey = 'rating_prompt_count';
   static const String firstLaunchDateKey = 'first_launch_date';

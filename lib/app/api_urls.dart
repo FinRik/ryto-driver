@@ -26,6 +26,7 @@ class ApiUrls {
   static const String privacy = "https://getryto.com/privacy";
   static const String terms = "https://getryto.com/terms";
   static const String website = "https://getryto.com";
+  static const String deleteAccount = "https://getryto.com/delete-account";
 
   // auth flow
   static const String login = "/auth/driver/login/phone";
@@ -38,6 +39,10 @@ class ApiUrls {
   static const String updateProfilePic = "/auth/driver/profile-picture";
   static const String updateProfile = "/auth/driver/complete-profile";
   static const String fetchProfile = "/auth/driver/user";
+
+  // fcm/push notif
+  static const String updateFCMToken = "/auth/driver/push-token";
+  static const String deleteFCMToken = "/auth/driver/push-token";
 
   /// KYC flow
   // ng kyc flow

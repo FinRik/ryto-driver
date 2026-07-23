@@ -78,6 +78,14 @@ abstract class ApiService {
     @Body() ProfileRequest request,
   );
 
+  @PUT(ApiUrls.updateFCMToken)
+  Future<BaseModel> updateFCMToken({
+    @Field("token") required String token,
+    @Field("platform") required String platform,
+  });
+  @DELETE(ApiUrls.deleteFCMToken)
+  Future<BaseModel> deleteFCMToken({@Field("token") required String token});
+
   @GET(ApiUrls.fetchProfile)
   // @Extra({'requiresAuthToken': true})
   Future<BaseModel<UserEntity>> fetchProfile();

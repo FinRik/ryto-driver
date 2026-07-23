@@ -57,6 +57,8 @@ class ProfileScreen extends StatelessWidget {
                     () {
                       if (item.title == "KYC Verification") {
                         router.push(item.route, extra: true);
+                      } else if (item.title == "Trip Preferences") {
+                        router.push(item.route, extra: false);
                       } else {
                         router.push(item.route);
                       }

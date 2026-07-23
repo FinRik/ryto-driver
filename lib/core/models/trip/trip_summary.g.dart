@@ -33,14 +33,40 @@ TripSummary _$TripSummaryFromJson(Map<String, dynamic> json) => TripSummary(
   createdAt: TripSummary._dateTimeFromJson(json['createdAt'] as String),
   updatedAt: TripSummary._dateTimeFromJson(json['updatedAt'] as String),
   currency: json['currency'] as String,
+
+  // 1. Financial Fields (Safely casting to double or int)
   totalAmount: (json['totalAmount'] as num?)?.toDouble(),
   driverNet: (json['driverNet'] as num?)?.toDouble(),
   commission: (json['commission'] as num?)?.toDouble(),
   platformCommissionPercentApplied:
       (json['platformCommissionPercentApplied'] as num?)?.toDouble(),
-  // bookings: (json['bookings'] as List<dynamic>?)
-  //     ?.map((e) => Booking.fromJson(e as Map<String, dynamic>))
-  //     .toList(),
+  tripFeeGross: (json['tripFeeGross'] as num?)?.toDouble(),
+  platformCommission: (json['platformCommission'] as num?)?.toDouble(),
+  serviceFee: (json['serviceFee'] as num?)?.toDouble(),
+  netProfit: (json['netProfit'] as num?)?.toDouble(),
+  estimatedEarnings: (json['estimatedEarnings'] as num?)?.toDouble(),
+  fee: (json['fee'] as num?)?.toDouble(),
+  commissionPercent: (json['commissionPercent'] as num?)
+      ?.toInt(), // Can be int or double
+  // 2. Status and Metadata Fields
+  tripPhase: json['tripPhase'] as String?,
+  isDeparturePast: json['isDeparturePast'] as bool?,
+  tripReminderSentAt: json['tripReminderSentAt'] != null
+      ? DateTime.parse(json['tripReminderSentAt'] as String)
+      : null,
+
+  // 3. Nested Lists (Mapping JSON lists to custom Dart objects)
+  bookings: json['bookings'] != null
+      ? (json['bookings'] as List)
+            .map((e) => BookingSummary.fromJson(e as Map<String, dynamic>))
+            .toList()
+      : [],
+
+  // passengerDetails: json['passengerDetails'] != null
+  //     ? (json['passengerDetails'] as List)
+  //     .map((e) => PassengerDetail.fromJson(e as Map<String, dynamic>))
+  //     .toList()
+  //     : null,
   distanceKm: (json['distanceKm'] as num).toDouble(),
   passengersBooked: (json['passengersBooked'] as num).toInt(),
 );
@@ -69,11 +95,28 @@ Map<String, dynamic> _$TripSummaryToJson(
   'createdAt': TripSummary._dateTimeToJson(instance.createdAt),
   'updatedAt': TripSummary._dateTimeToJson(instance.updatedAt),
   'currency': instance.currency,
+
+  // 1. Financial Fields
   'totalAmount': instance.totalAmount,
   'driverNet': instance.driverNet,
   'commission': instance.commission,
   'platformCommissionPercentApplied': instance.platformCommissionPercentApplied,
+  'tripFeeGross': instance.tripFeeGross,
+  'platformCommission': instance.platformCommission,
+  'serviceFee': instance.serviceFee,
+  'netProfit': instance.netProfit,
+  'estimatedEarnings': instance.estimatedEarnings,
+  'fee': instance.fee,
+  'commissionPercent': instance.commissionPercent,
+
+  // 2. Status and Metadata Fields
+  'tripPhase': instance.tripPhase,
+  'isDeparturePast': instance.isDeparturePast,
+  'tripReminderSentAt': instance.tripReminderSentAt?.toIso8601String(),
+
+  // 3. Nested Lists (Calling toJson on child list items)
   // 'bookings': instance.bookings,
+  // 'passengerDetails': instance.passengerDetails,
   'distanceKm': instance.distanceKm,
   'passengersBooked': instance.passengersBooked,
 };

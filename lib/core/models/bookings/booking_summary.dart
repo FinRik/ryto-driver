@@ -23,7 +23,7 @@ class BookingSummary {
   final DateTime? driverPinVerifiedAt;
 
   final Passenger passenger;
-  final List<Passenger> passengers;
+  final List<Passenger>? passengers;
 
   BookingSummary({
     required this.id,
@@ -43,7 +43,7 @@ class BookingSummary {
     required this.createdAt,
     this.driverPinVerifiedAt,
     required this.passenger,
-    required this.passengers,
+    this.passengers,
   });
 
   Color get formattedStatus {
@@ -78,7 +78,7 @@ class BookingSummary {
     }
   }
 
-  bool get getFriendlyStatus {
+  bool get getBookingStatus {
     switch (bookingStatus.toUpperCase()) {
       case "PENDING":
       case "SCHEDULED":
@@ -115,7 +115,7 @@ class BookingSummary {
 
 @JsonSerializable()
 class Passenger {
-  final int id;
+  final int? id;
   final String firstName;
   final String lastName;
   final String phone;

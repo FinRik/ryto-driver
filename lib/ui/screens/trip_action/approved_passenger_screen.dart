@@ -192,7 +192,7 @@ class _ApprovedPassengerScreenState extends State<ApprovedPassengerScreen> {
                         Expanded(
                           child: _buildStatTile(
                             Icons.airline_seat_recline_normal_outlined,
-                            "SEATS(s) BOOKED",
+                            "SEAT(s) BOOKED",
                             "${_booking.seats}",
                           ),
                         ),

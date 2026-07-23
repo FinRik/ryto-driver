@@ -54,7 +54,7 @@ Map<String, dynamic> _$BookingSummaryToJson(BookingSummary instance) =>
     };
 
 Passenger _$PassengerFromJson(Map<String, dynamic> json) => Passenger(
-  id: (json['id'] as num).toInt(),
+  id: (json['id'] as num?)?.toInt(),
   firstName: json['firstName'] as String,
   lastName: json['lastName'] as String,
   phone: json['phone'] as String,

@@ -62,7 +62,7 @@ class BuildRouteCard extends StatelessWidget {
                 departureDateTime: departureDateTime,
                 builder: (ctx, eta) => _buildDateTimeInfo(
                   "Estimated Duration",
-                  eta.formattedArrivalTime,
+                  eta.formattedDuration,
                   crossAxisAlignment: CrossAxisAlignment.end,
                 ),
               ),

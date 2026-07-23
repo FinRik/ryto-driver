@@ -61,7 +61,7 @@ class _PassengersExpandableSectionState
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    "${widget.passengers.length}/${widget.selectedTrip?.passengerSeats ?? 0} on ride",
+                    "${widget.passengers.length} passenger(s) on ride",
                     style: const TextStyle(
                       color: Color(0xff16A249),
                       fontSize: 12,
