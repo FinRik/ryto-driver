@@ -336,6 +336,8 @@ class _TripRouterMapState extends State<TripRouterMap> {
           trafficEnabled: true,
           zoomControlsEnabled: false,
           compassEnabled: false,
+          mapToolbarEnabled: false,
+
           markers: _getMarkers(),
           polylines: widget.polylines,
           onMapCreated: (controller) {

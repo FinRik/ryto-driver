@@ -34,12 +34,13 @@ class TripsBloc extends Bloc<TripsEvent, TripsState> {
             errorMessage: e.message,
           ),
         );
-      } catch (e) {
+      } catch (e, s) {
         // Fallback for everything else (e.g. state assignment bugs)
+        print(s.toString());
         emit(
           state.copyWith(
             listStatus: TripListStatus.failure,
-            errorMessage: "An unexpected error occurred: $e",
+            errorMessage: "An unexpected error occurred",
           ),
         );
       }

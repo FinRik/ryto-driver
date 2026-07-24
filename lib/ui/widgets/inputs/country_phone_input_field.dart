@@ -10,11 +10,12 @@ class CountryPhoneInputField extends StatefulWidget {
     super.key,
     required this.onChanged,
     this.enabled = true,
+    this.isLogin = false,
     this.initialValue,
   });
 
   final void Function(String number) onChanged;
-  final bool enabled;
+  final bool enabled, isLogin;
   final String? initialValue;
 
   @override
@@ -63,7 +64,7 @@ class _CountryPhoneInputFieldState extends State<CountryPhoneInputField> {
           betweenPadding: 6,
           loadFromJson: loadFromJson,
           onInputChanged: (phone) {
-            if (region.countryDialCode != phone.dial_code) {
+            if (region.countryDialCode != phone.dial_code && widget.isLogin == false) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(

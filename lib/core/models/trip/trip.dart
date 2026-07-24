@@ -25,11 +25,11 @@ class Trip {
   final String? packageType;
   final double estimatedEarnings;
   final String? currency;
-  final double tripFeeGross;
-  final double platformCommission;
-  final double serviceFee;
-  final double driverNet;
-  final double netProfit;
+  final double? tripFeeGross;
+  final double? platformCommission;
+  final double? serviceFee;
+  final double? driverNet;
+  final double? netProfit;
   final double distanceKm;
 
   Trip({
@@ -44,11 +44,11 @@ class Trip {
     this.packageType,
     required this.estimatedEarnings,
     this.currency,
-    required this.tripFeeGross,
-    required this.platformCommission,
-    required this.serviceFee,
-    required this.driverNet,
-    required this.netProfit,
+    this.tripFeeGross,
+    this.platformCommission,
+    this.serviceFee,
+    this.driverNet,
+    this.netProfit,
     required this.distanceKm,
   });
 

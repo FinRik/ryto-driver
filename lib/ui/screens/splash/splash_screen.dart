@@ -32,7 +32,6 @@ class _SplashScreenState extends State<SplashScreen> {
       context.read<RegionalManagerRepo>().initializeRegion(),
     ]);
     // Once initialized, proceed with Auth logic
-    await TokenStorage.saveAccessToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTc4NDMyMjQzNiwiZXhwIjoxNzg2OTE0NDM2fQ.Zi8Gihh3LiMZ-NXnFcwimYqJB_Pm__w5XzNCTdwuBm0");
     final token = await TokenStorage.getAccessToken();
     if (!(await AppLaunchState.isFirstLaunch())) {
       if (JwtUtils.isValid(token)) {

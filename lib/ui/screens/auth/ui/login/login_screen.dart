@@ -57,6 +57,7 @@ class _RegisterScreenState extends State<LoginScreen> {
                       child: Column(
                         children: [
                           CountryPhoneInputField(
+                            isLogin: true,
                             onChanged: (phone) {
                               _phone = phone;
                             },

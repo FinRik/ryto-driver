@@ -84,9 +84,7 @@ class _TripsScreenState extends State<TripsScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    "Error: ${state.errorMessage ?? 'Something went wrong'}",
-                  ),
+                  Text(state.errorMessage ?? 'Something went wrong'),
                   TextButton(
                     onPressed: () => _fetchTrips(_tabController.index),
                     child: const Text("Retry"),

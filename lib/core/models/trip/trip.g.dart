@@ -21,11 +21,11 @@ Trip _$TripFromJson(Map<String, dynamic> json) => Trip(
   packageType: json['packageType'] as String?,
   estimatedEarnings: (json['estimatedEarnings'] as num).toDouble(),
   currency: (json["currency"] as String?),
-  tripFeeGross: (json["tripFeeGross"] as num).toDouble(),
-  platformCommission: (json['platformCommission'] as num).toDouble(),
-  serviceFee: (json['serviceFee'] as num).toDouble(),
-  driverNet: (json["driverNet"] as num).toDouble(),
-  netProfit: (json["netProfit"] as num).toDouble(),
+  tripFeeGross: (json["tripFeeGross"] as num?)?.toDouble(),
+  platformCommission: (json['platformCommission'] as num?)?.toDouble(),
+  serviceFee: (json['serviceFee'] as num?)?.toDouble(),
+  driverNet: (json["driverNet"] as num?)?.toDouble(),
+  netProfit: (json["netProfit"] as num?)?.toDouble(),
   distanceKm: (json['distanceKm'] as num).toDouble(),
 );
 
