@@ -17,12 +17,14 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
     on<UpdateOnboardingState>(_onUpdateOnboardingState);
 
     // Handlers for the initialization barrier
-    on<StartOnboardingSyncEvent>((event, emit) => emit(state.copyWith(
-      onboardingStatus: OnboardingFetchStatus.loading,
-    )));
-    on<CompleteOnboardingSyncEvent>((event, emit) => emit(state.copyWith(
-      onboardingStatus: OnboardingFetchStatus.success,
-    )));
+    on<StartOnboardingSyncEvent>(
+      (event, emit) =>
+          emit(state.copyWith(onboardingStatus: OnboardingFetchStatus.loading)),
+    );
+    on<CompleteOnboardingSyncEvent>(
+      (event, emit) =>
+          emit(state.copyWith(onboardingStatus: OnboardingFetchStatus.success)),
+    );
   }
 
   Future<void> _onFetchDashboardData(
@@ -47,6 +49,7 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
         ),
       );
     } catch (e) {
+      print("Error: zz${e.toString()}");
       emit(
         state.copyWith(
           status: HomeStatus.failure,
@@ -111,7 +114,7 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
   ActionStatus _parseActionStatus(dynamic jsonValue) {
     if (jsonValue == null) return ActionStatus.notSet;
     return ActionStatus.values.firstWhere(
-          (e) => e.name == jsonValue,
+      (e) => e.name == jsonValue,
       orElse: () => ActionStatus.notSet,
     );
   }

@@ -30,7 +30,7 @@ class Trip {
   final double? serviceFee;
   final double? driverNet;
   final double? netProfit;
-  final double distanceKm;
+  final double? distanceKm;
 
   Trip({
     required this.id,
@@ -58,6 +58,7 @@ class Trip {
     final time = json['departureTime'] ?? '00:00';
     return '${date}T$time:00'; // Formats into a clean ISO-8601 string
   }
+
   // Custom converters for DateTime
   static DateTime _dateTimeFromJson(String date) => DateTime.parse(date);
   static String _dateTimeToJson(DateTime date) => date.toIso8601String();
@@ -84,7 +85,8 @@ class Trip {
     final map = _$TripToJson(this);
 
     map['departureDate'] = departureDateTime.toIso8601String().split('T').first;
-    map['departureTime'] = "${departureDateTime.hour.toString().padLeft(2, '0')}:${departureDateTime.minute.toString().padLeft(2, '0')}";
+    map['departureTime'] =
+        "${departureDateTime.hour.toString().padLeft(2, '0')}:${departureDateTime.minute.toString().padLeft(2, '0')}";
 
     return map;
   }
