@@ -3,7 +3,6 @@ import 'package:dio/dio.dart';
 import '../../app/api_urls.dart';
 import '../interceptors/api_interceptor.dart';
 import '../interceptors/error_interceptor.dart';
-import '../interceptors/logging_interceptor.dart';
 
 class DioService {
   late Dio _dio;
@@ -28,7 +27,7 @@ class DioService {
     _dio.options.validateStatus = (status) => true;
     _dio.interceptors.addAll([
       ApiInterceptor(),
-      LoggingInterceptor(),
+      // LoggingInterceptor(),
       ErrorInterceptor(_dio),
     ]);
     print("Done setting client");

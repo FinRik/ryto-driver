@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../../utils/storage/fcm_token_storage.dart';
@@ -37,6 +37,18 @@ class PushNotificationService {
     );
 
     debugPrint('User granted permission: ${settings.authorizationStatus}');
+
+    // On iOS, FCM can't vend a token until APNS has handed one over, which
+    // can take a moment after a cold start, so wait for it here.
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      String? apnsToken = await _firebaseMessaging.getAPNSToken();
+      var retries = 0;
+      while (apnsToken == null && retries < 10) {
+        await Future.delayed(const Duration(seconds: 1));
+        apnsToken = await _firebaseMessaging.getAPNSToken();
+        retries++;
+      }
+    }
 
     // Get FCM token
     String? fcmToken = await _firebaseMessaging.getToken();
@@ -81,7 +93,8 @@ class PushNotificationService {
 
     await _notificationPlugin.initialize(
       settings: initializationSettings,
-      onDidReceiveBackgroundNotificationResponse: onLocalNotificationTapBackground,
+      onDidReceiveBackgroundNotificationResponse:
+          onLocalNotificationTapBackground,
       onDidReceiveNotificationResponse: (response) {
         debugPrint(
           'From Foreground: Notification clicked with payload: ${response.payload}',
@@ -165,7 +178,7 @@ class PushNotificationService {
       'Local notification displayed with payload: ${json.encode(message.data)}',
     );
   }
-  
+
   Future<void> showSocketNotification(DriverNotification message) async {
     final androidPlatformChannelSpecifics = const AndroidNotificationDetails(
       'high_importance_channel',

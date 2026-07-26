@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_map_dynamic_key/google_map_dynamic_key.dart';
@@ -19,7 +21,11 @@ class App {
     );
     await setupDependencies();
     await setupBottomSheetUi();
-    await PushNotificationService().initNotification();
+    try {
+      await PushNotificationService().initNotification();
+    } catch (error) {
+      print('Failed to initialize push notifications: $error');
+    }
     await initGoogleMapKey();
     HydratedBloc.storage = await HydratedStorage.build(
       storageDirectory: HydratedStorageDirectory(
@@ -28,8 +34,17 @@ class App {
     );
   }
 
-  static Future<void> initGoogleMapKey() async => await GoogleMapDynamicKey()
-      .setGoogleApiKey(dotenv.env["GOOGLE_MAP_KEY_ANDROID"]!)
-      .then((value) => print("Map key is set"))
-      .catchError((error) => print("Failed to set map key"));
+  static Future<void> initGoogleMapKey() async {
+    if (Platform.isAndroid) {
+      await GoogleMapDynamicKey()
+          .setGoogleApiKey(dotenv.env["GOOGLE_MAP_KEY_ANDROID"]!)
+          .then((value) => print("Map key is set"))
+          .catchError((error) => print("Failed to set map key"));
+    } else {
+      await GoogleMapDynamicKey()
+          .setGoogleApiKey(dotenv.env["GOOGLE_MAP_KEY_IOS"]!)
+          .then((value) => print("Map key is set"))
+          .catchError((error) => print("Failed to set map key"));
+    }
+  }
 }

@@ -28,9 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _initializeApp() async {
     // Use Future.wait to run branding timer and logic in parallel
-    await Future.wait([
-      context.read<RegionalManagerRepo>().initializeRegion(),
-    ]);
+    await Future.wait([context.read<RegionalManagerRepo>().initializeRegion()]);
     // Once initialized, proceed with Auth logic
     final token = await TokenStorage.getAccessToken();
     if (!(await AppLaunchState.isFirstLaunch())) {
