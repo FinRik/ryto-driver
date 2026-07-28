@@ -46,9 +46,9 @@ class HomeState extends Equatable {
         preference == ActionStatus.completed &&
         payout == ActionStatus.completed;
 
-    if (countryCode == "US") {
-      return base && background == ActionStatus.completed;
-    }
+    // if (countryCode == "US") {
+    //   return base && background == ActionStatus.completed;
+    // }
     return base;
   }
 
