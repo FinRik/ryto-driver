@@ -31,32 +31,82 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
     FetchDashboardDataEvent event,
     Emitter<HomeState> emit,
   ) async {
-    emit(state.copyWith(status: HomeStatus.loading));
+    emit(
+      state.copyWith(
+        status: HomeStatus.loading,
+        tripsStatus: TripsFetchStatus.loading,
+      ),
+    );
 
+    // Kick off all three requests in parallel up front, but isolate the
+    // trips fetch from the summary figures so a hiccup in one (e.g. the
+    // earnings/wallet call) can't blank out data the other already fetched
+    // successfully - previously a single failing call in Future.wait
+    // discarded every result, including "today's trips" that had loaded fine.
+    final tripsCountFuture = _repo.fetchTripsCount("day");
+    final dailyEarningsFuture = _repo.fetchDailyEarnings();
+    final currentTripsFuture = _repo.fetchCurrentTrips(event.tripStatus);
+
+    int? tripsCount;
+    WalletSummary? dailyEarnings;
+    bool summaryFailed = false;
     try {
+      // <<<<<<< Updated upstream
+      //       final results = await Future.wait([
+      //         _repo.fetchTripsCount("day"),
+      //         _repo.fetchDailyEarnings(),
+      //         _repo.fetchCurrentTrips(event.tripStatus),
+      //       ]);
+      //
+      //       emit(
+      //         state.copyWith(
+      //           status: HomeStatus.success,
+      //           tripsCount: results[0] as int?,
+      //           dailyEarnings: results[1] as WalletSummary?,
+      //           currentTrips: results[2] as List<Trip>?,
+      //         ),
+      //       );
+      //     } catch (e) {
+      //       print("Error: zz${e.toString()}");
+      //       emit(
+      //         state.copyWith(
+      //           status: HomeStatus.failure,
+      //           errorMessage: "Failed to load trips",
+      //         ),
+      //       );
+      // =======
       final results = await Future.wait([
-        _repo.fetchTripsCount("day"),
-        _repo.fetchDailyEarnings(),
-        _repo.fetchCurrentTrips(event.tripStatus),
+        tripsCountFuture,
+        dailyEarningsFuture,
       ]);
-
-      emit(
-        state.copyWith(
-          status: HomeStatus.success,
-          tripsCount: results[0] as int?,
-          dailyEarnings: results[1] as WalletSummary?,
-          currentTrips: results[2] as List<Trip>?,
-        ),
-      );
-    } catch (e) {
-      print("Error: zz${e.toString()}");
-      emit(
-        state.copyWith(
-          status: HomeStatus.failure,
-          errorMessage: "Failed to load trips",
-        ),
-      );
+      tripsCount = results[0] as int?;
+      dailyEarnings = results[1] as WalletSummary?;
+    } catch (_) {
+      summaryFailed = true;
+      // >>>>>>> Stashed changes
     }
+
+    List<Trip>? currentTrips;
+    bool tripsFailed = false;
+    try {
+      currentTrips = await currentTripsFuture;
+    } catch (_) {
+      tripsFailed = true;
+    }
+
+    emit(
+      state.copyWith(
+        status: summaryFailed ? HomeStatus.failure : HomeStatus.success,
+        errorMessage: summaryFailed ? "Failed to load dashboard summary" : null,
+        tripsCount: tripsCount,
+        dailyEarnings: dailyEarnings,
+        tripsStatus: tripsFailed
+            ? TripsFetchStatus.failure
+            : TripsFetchStatus.success,
+        tripsErrorMessage: tripsFailed ? "Failed to load trips" : null,
+        currentTrips: currentTrips,
+      ),
+    );
   }
 
   void _onUpdateOnboardingState(
