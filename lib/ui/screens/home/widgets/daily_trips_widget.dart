@@ -38,12 +38,12 @@ class DailyTripsWidget extends StatelessWidget {
             ),
 
             // 4. List of Daily Trips handled cleanly via Enum Status
-            if (state.status == HomeStatus.loading && currentTrips.isEmpty)
+            if (state.tripsStatus == TripsFetchStatus.loading && currentTrips.isEmpty)
               const Center(child: CircularIndicator())
-            else if (state.status == HomeStatus.failure && currentTrips.isEmpty)
+            else if (state.tripsStatus == TripsFetchStatus.failure && currentTrips.isEmpty)
               Center(
                 child: Text(
-                  "${state.errorMessage}",
+                  "${state.tripsErrorMessage}",
                   textAlign: TextAlign.center,
                 ),
               )

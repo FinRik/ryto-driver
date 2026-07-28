@@ -72,5 +72,25 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+<<<<<<< Updated upstream
+=======
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Ryto Driver uses your location to detect your region and show nearby trips.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Ryto Driver uses your location to track active trips and show nearby trips even when the app is in the background.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Ryto Driver uses your location to track active trips and show nearby trips even when the app is in the background.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Ryto Driver needs camera access to capture your identity documents and verification photos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Ryto Driver needs photo library access so you can upload identity documents and a profile photo.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Ryto Driver uses Face ID to securely unlock the app.</string>
+>>>>>>> Stashed changes
 </dict>
 </plist>

@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 
 import '../../../app/app_setup_locator.dart';
 import '../../../core/setups/region_identity_setup.dart';
+import '../../dialogs/generic_dialog.dart';
 import '../../screens/home/bloc/home_bloc.dart';
 import 'cubit/bottom_nav_cubit.dart';
 
@@ -92,7 +93,20 @@ class _BottomNavLayoutState extends State<BottomNavLayout> {
               final isComplete = bloc.state.isFullyOnboarded(
                 region.countryCode,
               );
-              if (isComplete) cubit.onTap(index);
+              if (isComplete || index == 0) {
+                cubit.onTap(index);
+              } else {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (dialogContext) => GenericDialog(
+                    title: 'Onboarding Incomplete',
+                    content:
+                        'Please complete your onboarding to access this section.',
+                    onButtonPressed: () => Navigator.of(dialogContext).pop(),
+                  ),
+                );
+              }
             },
             currentIndex: currentIndex,
             items: List.generate(

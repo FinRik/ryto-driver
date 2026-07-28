@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-
+import '../../utils/logger/logger.dart';
 import '../models/trip/trip.dart';
 import '../models/wallet/wallet_summary.dart';
 import '../services/api_service.dart';
@@ -22,9 +22,9 @@ class DashboardRepoImpl implements DashboardRepo {
       debugPrint("Trip Stacktrace: ${result.data?.toJson()}");
       return result.data?.data;
     } catch (e, stacktrace) {
-      debugPrint("Trip Stacktrace: $stacktrace");
+      AppLogger.e('Failed to fetch current trips', 'DashboardRepo', e, stacktrace);
+      rethrow;
     }
-    return [];
   }
 
   @override
