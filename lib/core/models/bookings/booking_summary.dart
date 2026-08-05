@@ -85,8 +85,8 @@ class BookingSummary {
   bool get getBookingStatus {
     switch (bookingStatus.toUpperCase()) {
       case "PENDING":
-        return false;
       case "BOOKED":
+        return false;
       case "DRIVER_ACCEPTED":
       case "DRIVER_CANCELLED":
       case "DRIVER_CANCELED":

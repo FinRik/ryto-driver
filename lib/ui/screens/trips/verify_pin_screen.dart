@@ -98,7 +98,9 @@ class _TripBulkPinVerificationScreenState
                       .where(
                         (b) =>
                             b.bookingStatus.toUpperCase() == "PENDING" ||
-                            b.bookingStatus.toUpperCase() == "DRIVER_ACCEPTED",
+                            b.bookingStatus.toUpperCase() == "BOOKED" ||
+                            b.bookingStatus.toUpperCase() == "DRIVER_ACCEPTED" ||
+                            b.bookingStatus.toUpperCase() == "TRIP_STARTED",
                       )
                       .toList();
 

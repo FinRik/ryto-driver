@@ -149,3 +149,15 @@ class TripSummary {
     return map;
   }
 }
+
+/// Statuses
+// PENDING — no paid/accepted passengers yet
+// SCHEDULED — no paid/accepted passengers yet
+// DRIVER_ACCEPTED -
+// COMPLETED -
+
+/// Trip Phase
+// SCHEDULED — no paid/accepted passengers yet
+// AWAITING_PINS — passengers booked; verify pins before departure
+// IN_PROGRESS — all required pins verified (TRIP_STARTED on bookings); start navigation
+// COMPLETED / CANCELED
