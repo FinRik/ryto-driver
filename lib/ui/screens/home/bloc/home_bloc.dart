@@ -51,30 +51,6 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
     WalletSummary? dailyEarnings;
     bool summaryFailed = false;
     try {
-      // <<<<<<< Updated upstream
-      //       final results = await Future.wait([
-      //         _repo.fetchTripsCount("day"),
-      //         _repo.fetchDailyEarnings(),
-      //         _repo.fetchCurrentTrips(event.tripStatus),
-      //       ]);
-      //
-      //       emit(
-      //         state.copyWith(
-      //           status: HomeStatus.success,
-      //           tripsCount: results[0] as int?,
-      //           dailyEarnings: results[1] as WalletSummary?,
-      //           currentTrips: results[2] as List<Trip>?,
-      //         ),
-      //       );
-      //     } catch (e) {
-      //       print("Error: zz${e.toString()}");
-      //       emit(
-      //         state.copyWith(
-      //           status: HomeStatus.failure,
-      //           errorMessage: "Failed to load trips",
-      //         ),
-      //       );
-      // =======
       final results = await Future.wait([
         tripsCountFuture,
         dailyEarningsFuture,
@@ -83,7 +59,6 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
       dailyEarnings = results[1] as WalletSummary?;
     } catch (_) {
       summaryFailed = true;
-      // >>>>>>> Stashed changes
     }
 
     List<Trip>? currentTrips;

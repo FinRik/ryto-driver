@@ -58,17 +58,21 @@ class BookingSummary {
     }
   }
 
-  String getFriendlyHeaderStatus(String? rawStatus) {
+  String getStatusTitle(String? rawStatus) {
     switch (rawStatus?.toUpperCase()) {
       case "PENDING":
-      case "SCHEDULED":
         return "Trip Scheduled";
       case "BOOKED":
         return "Trip Booked";
       case "DRIVER_ACCEPTED":
         return "Driver is Assigned";
+      case "DRIVER_CANCELLED":
+      case "DRIVER_CANCELED":
       case "DRIVER_REJECTED":
         return "Driver Canceled";
+      case "CUSTOMER_CANCELED":
+      case "CUSTOMER_CANCELLED":
+        return "Trip Canceled";
       case "TRIP_STARTED":
         return "Trip En Route";
       case "TRIP_COMPLETED":
@@ -81,11 +85,14 @@ class BookingSummary {
   bool get getBookingStatus {
     switch (bookingStatus.toUpperCase()) {
       case "PENDING":
-      case "SCHEDULED":
         return false;
       case "BOOKED":
       case "DRIVER_ACCEPTED":
+      case "DRIVER_CANCELLED":
+      case "DRIVER_CANCELED":
       case "DRIVER_REJECTED":
+      case "CUSTOMER_CANCELED":
+      case "CUSTOMER_CANCELLED":
       case "TRIP_STARTED":
       case "TRIP_COMPLETED":
         return true;

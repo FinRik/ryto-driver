@@ -12,8 +12,6 @@ import 'widgets/trip_calendar_card.dart';
 
 import 'widgets/trip_time_picker.dart';
 
-
-
 class SetTripScheduleScreen extends StatefulWidget {
   const SetTripScheduleScreen({super.key});
 
