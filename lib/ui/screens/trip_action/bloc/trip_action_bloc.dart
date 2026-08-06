@@ -132,12 +132,43 @@ class TripActionsBloc extends Bloc<TripActionEvent, TripActionsState> {
       }
     });
 
-    on<VerifyPassengerPinsConfirmed>((event, emit) async {
+    on<VerifyPassengerPinConfirmed>((event, emit) async {
       emit(
         state.copyWith(
           status: TripActionStatus.loading,
           processingId: event.tripId,
           lastAction: 'verify_pin',
+        ),
+      );
+      try {
+        final success = await repo.verifyPassengerPin(
+          event.tripId,
+          event.request,
+        );
+        if (success) {
+          emit(
+            state.copyWith(
+              status: TripActionStatus.success,
+              message: "Pin Verified",
+            ),
+          );
+        }
+      } catch (e) {
+        emit(
+          state.copyWith(
+            status: TripActionStatus.failure,
+            message: "Failed to verify pin, Please try again later.",
+          ),
+        );
+      }
+    });
+
+    on<VerifyPassengerPinsConfirmed>((event, emit) async {
+      emit(
+        state.copyWith(
+          status: TripActionStatus.loading,
+          processingId: event.tripId,
+          lastAction: 'verify_pins',
         ),
       );
       try {
@@ -157,11 +188,12 @@ class TripActionsBloc extends Bloc<TripActionEvent, TripActionsState> {
         emit(
           state.copyWith(
             status: TripActionStatus.failure,
-            message: "Failed to verify pin, Please try again later.",
+            message: "Failed to verify pins, Please try again later.",
           ),
         );
       }
     });
+
     on<ResetTripAction>((event, emit) {
       emit(
         TripActionsState(

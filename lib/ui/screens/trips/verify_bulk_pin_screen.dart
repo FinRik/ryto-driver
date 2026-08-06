@@ -46,7 +46,7 @@ class _TripBulkPinVerificationScreenState
           listenWhen: (p, c) =>
               p.status != c.status && c.status == TripActionStatus.success,
           listener: (context, state) {
-            if (state.lastAction == 'verify_pin') {
+            if (state.lastAction == 'verify_pins') {
               showDialog(
                 context: context,
                 barrierDismissible: false,
@@ -157,9 +157,7 @@ class _TripBulkPinVerificationScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  booking.passenger.firstName +
-                      " " +
-                      booking.passenger.lastName,
+                  "${booking.passenger.firstName} ${booking.passenger.lastName}",
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -207,7 +205,7 @@ class _TripBulkPinVerificationScreenState
         builder: (context, state) {
           final isBusy =
               state.status == TripActionStatus.loading &&
-              state.lastAction == 'verify_pin';
+              state.lastAction == 'verify_pins';
 
           return Button(
             text: "Confirm & Verify All",
@@ -321,181 +319,3 @@ class _TripBulkPinVerificationScreenState
     );
   }
 }
-
-// class TripBulkPinVerificationScreen extends StatefulWidget {
-//   final String tripId;
-//
-//   const TripBulkPinVerificationScreen({super.key, required this.tripId});
-//
-//   @override
-//   State<TripBulkPinVerificationScreen> createState() =>
-//       _TripBulkPinVerificationScreenState();
-// }
-//
-// class _TripBulkPinVerificationScreenState
-//     extends State<TripBulkPinVerificationScreen> {
-//   // Local list to store the pins as they are added/edited
-//   final List<PinVerification> _pinVerifications = [];
-//
-//   // Helper to check if a bookings already has a pin in our list
-//   PinVerification? _getVerificationFor(int bookingId) {
-//     try {
-//       return _pinVerifications.firstWhere((p) => p.bookingId == bookingId);
-//     } catch (_) {
-//       return null;
-//     }
-//   }
-//
-//   @override
-//   void initState() {
-//     context.read<TripsBloc>().add(
-//       FetchTripBookingsRequested(widget.tripId, bookingStatus: "ACCEPTED"),
-//     );
-//     super.initState();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return BlocListener<TripActionsBloc, TripActionsState>(
-//       listenWhen: (p, c) =>
-//           p.status != c.status && c.status == TripActionStatus.success,
-//       listener: (context, state) {
-//         if (state.lastAction == 'verify_pin') {
-//           showDialog(
-//             context: context,
-//             barrierDismissible: false,
-//             builder: (context) => TripSuccessDialog(
-//               title: "Verification Complete",
-//               message:
-//                   state.message ?? "All pins have been verified successfully.",
-//               onDone: () {
-//                 Navigator.pop(context); // Close dialog
-//                 Navigator.pop(context); // Return to trip details
-//               },
-//             ),
-//           );
-//         }
-//       },
-//       child: Scaffold(
-//         appBar: AppBar(
-//           title: const Text(
-//             "Verify Passengers",
-//             style: TextStyle(color: Color(0xFF1B2559)),
-//           ),
-//           backgroundColor: Colors.white,
-//           elevation: 0,
-//           leading: const BackButton(color: Color(0xFF1B2559)),
-//         ),
-//         body: Column(
-//           children: [
-//             Expanded(
-//               child: ListView.builder(
-//                 padding: const EdgeInsets.all(20),
-//                 itemCount: widget.acceptedBookings.length,
-//                 itemBuilder: (context, index) {
-//                   final bookings = widget.acceptedBookings[index];
-//                   final verification = _getVerificationFor(bookings.id);
-//                   final bool hasPin = verification != null;
-//
-//                   return Container(
-//                     margin: const EdgeInsets.only(bottom: 16),
-//                     padding: const EdgeInsets.all(16),
-//                     decoration: BoxDecoration(
-//                       border: Border.all(color: const Color(0xFFE0E5F2)),
-//                       borderRadius: BorderRadius.circular(12),
-//                       color: hasPin ? const Color(0xFFF4F7FE) : Colors.white,
-//                     ),
-//                     child: Row(
-//                       children: [
-//                         const CircleAvatar(
-//                           backgroundColor: Color(0xFF0061FF),
-//                           child: Icon(Icons.person, color: Colors.white),
-//                         ),
-//                         const SizedBox(width: 16),
-//                         Expanded(
-//                           child: Column(
-//                             crossAxisAlignment: CrossAxisAlignment.start,
-//                             children: [
-//                               Text(
-//                                 "${bookings.passenger.firstName} ${bookings.passenger.lastName}",
-//                                 style: const TextStyle(
-//                                   fontWeight: FontWeight.bold,
-//                                   fontSize: 16,
-//                                 ),
-//                               ),
-//                               if (hasPin)
-//                                 Text(
-//                                   "PIN Added: ****${verification.safetyPin.characters.last}",
-//                                   style: const TextStyle(
-//                                     color: Color(0xFF48BB78),
-//                                     fontSize: 12,
-//                                   ),
-//                                 ),
-//                             ],
-//                           ),
-//                         ),
-//                         TextButton(
-//                           onPressed: () => _showPinDialog(bookings),
-//                           child: Text(
-//                             hasPin ? "Edit PIN" : "Add PIN",
-//                             style: TextStyle(
-//                               color: hasPin
-//                                   ? Colors.orange
-//                                   : const Color(0xFF0061FF),
-//                             ),
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   );
-//                 },
-//               ),
-//             ),
-//
-//             // Bottom Action Bar
-//             Container(
-//               padding: const EdgeInsets.all(24),
-//               decoration: const BoxDecoration(
-//                 color: Colors.white,
-//                 boxShadow: [
-//                   BoxShadow(
-//                     color: Colors.black12,
-//                     blurRadius: 10,
-//                     offset: Offset(0, -2),
-//                   ),
-//                 ],
-//               ),
-//               child: BlocBuilder<TripActionsBloc, TripActionsState>(
-//                 builder: (context, state) {
-//                   final isBusy =
-//                       state.status == TripActionStatus.loading &&
-//                       state.lastAction == 'verify_pin';
-//
-//                   return Button(
-//                     text: "Confirm & Verify All",
-//                     onTap: (isBusy || _pinVerifications.isEmpty)
-//                         ? null
-//                         : () {
-//                             context.read<TripActionsBloc>().add(
-//                               VerifyPassengerPinsConfirmed(
-//                                 tripId: widget.tripId,
-//                                 request: SafetyPinRequest(
-//                                   pinVerifications: _pinVerifications,
-//                                 ),
-//                               ),
-//                             );
-//                           },
-//                     isBusy: isBusy,
-//                     buttonColor: _pinVerifications.isEmpty
-//                         ? Colors.grey[300]!
-//                         : const Color(0xFF0061FF),
-//                   );
-//                 },
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }

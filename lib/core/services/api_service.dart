@@ -263,6 +263,11 @@ abstract class ApiService {
   @POST(ApiUrls.cancelTrip)
   Future<BaseModel> cancelTrip(@Path("id") String id);
 
+  @POST(ApiUrls.verityPassengerPin)
+  Future<BaseModel> verifyPassengerPin(
+    @Path("id") String tripId,
+    @Body() PinVerification request,
+  );
   @POST(ApiUrls.verityPassengerPins)
   Future<BaseModel> verifyPassengerPins(
     @Path("id") String tripId,

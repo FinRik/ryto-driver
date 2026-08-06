@@ -43,7 +43,7 @@ class _ApprovedPassengerScreenState extends State<ApprovedPassengerScreen> {
       listenWhen: (prev, curr) =>
           prev.status != curr.status &&
           curr.status == TripActionStatus.success &&
-          curr.lastAction == 'verify_pin',
+          (curr.lastAction == 'verify_pin' || curr.lastAction == 'verify_pins'),
       listener: (context, state) {
         showDialog(
           context: context,

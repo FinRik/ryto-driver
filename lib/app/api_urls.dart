@@ -93,5 +93,6 @@ class ApiUrls {
   static const String declineTripBooking = "/booking/cancel/driver";
   static const String completeTrip = "/driver/trips/{id}/complete";
   static const String cancelTrip = "/driver/trips/{id}/cancel";
+  static const String verityPassengerPin = "/driver/trips/{id}/verify-safety-pin";
   static const String verityPassengerPins = "/driver/trips/{id}/verify-safety-pins";
 }

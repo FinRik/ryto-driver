@@ -63,6 +63,19 @@ class DeclineBookingConfirmed extends TripActionEvent {
 }
 
 /// 5. Triggered when passenger pins are submitted for verification
+class VerifyPassengerPinConfirmed extends TripActionEvent {
+  final String tripId;
+  final PinVerification request;
+
+  const VerifyPassengerPinConfirmed({
+    required this.tripId,
+    required this.request,
+  });
+
+  @override
+  List<Object?> get props => [tripId, request];
+}
+
 class VerifyPassengerPinsConfirmed extends TripActionEvent {
   final String tripId;
   final SafetyPinRequest request;

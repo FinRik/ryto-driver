@@ -44,15 +44,11 @@ class _VerifyIdentityCardState extends State<VerifyIdentityCard> {
 
   void _executeVerification() {
     context.read<TripActionsBloc>().add(
-      VerifyPassengerPinsConfirmed(
+      VerifyPassengerPinConfirmed(
         tripId: "${widget.tripId}",
-        request: SafetyPinRequest(
-          pinVerifications: [
-            PinVerification(
-              safetyPin: _pinController.text,
-              bookingId: widget.bookingId,
-            ),
-          ],
+        request: PinVerification(
+          safetyPin: _pinController.text,
+          bookingId: widget.bookingId,
         ),
       ),
     );
@@ -82,7 +78,11 @@ class _VerifyIdentityCardState extends State<VerifyIdentityCard> {
               const SizedBox(height: 24),
               const Text(
                 "Confirm Passenger PIN",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1B2559)),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1B2559),
+                ),
               ),
               const SizedBox(height: 12),
               const Text(
@@ -92,14 +92,22 @@ class _VerifyIdentityCardState extends State<VerifyIdentityCard> {
               ),
               const SizedBox(height: 24),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 16,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF4F7FE),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
                   _pinController.text,
-                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, letterSpacing: 8, color: Color(0xFF0061FF)),
+                  style: const TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 8,
+                    color: Color(0xFF0061FF),
+                  ),
                 ),
               ),
               const SizedBox(height: 32),
@@ -110,10 +118,18 @@ class _VerifyIdentityCardState extends State<VerifyIdentityCard> {
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         side: const BorderSide(color: Color(0xFF8F9BBA)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                       onPressed: () => Navigator.pop(modalContext),
-                      child: const Text("Edit PIN", style: TextStyle(color: Color(0xFF1B2559), fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        "Edit PIN",
+                        style: TextStyle(
+                          color: Color(0xFF1B2559),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -122,14 +138,22 @@ class _VerifyIdentityCardState extends State<VerifyIdentityCard> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF0061FF),
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         elevation: 0,
                       ),
                       onPressed: () {
                         Navigator.pop(modalContext);
                         _executeVerification();
                       },
-                      child: const Text("Confirm & Submit", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        "Confirm & Submit",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -145,14 +169,16 @@ class _VerifyIdentityCardState extends State<VerifyIdentityCard> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<TripActionsBloc, TripActionsState>(
-      listenWhen: (prev, curr) => prev.status != curr.status && curr.lastAction == 'verify_pin',
+      listenWhen: (prev, curr) =>
+          prev.status != curr.status && curr.lastAction == 'verify_pin',
       listener: (context, state) {
         if (state.status == TripActionStatus.success) {
           _pinController.clear();
           widget.onSuccess();
         }
       },
-      buildWhen: (prev, curr) => prev.status != curr.status && curr.lastAction == 'verify_pin',
+      buildWhen: (prev, curr) =>
+          prev.status != curr.status && curr.lastAction == 'verify_pin',
       builder: (context, state) {
         final isBusy = state.status == TripActionStatus.loading;
         final hasError = state.status == TripActionStatus.failure;
@@ -182,14 +208,22 @@ class _VerifyIdentityCardState extends State<VerifyIdentityCard> {
                 controller: _pinController,
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.number,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: 4),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 4,
+                ),
                 inputFormatters: [
                   LengthLimitingTextInputFormatter(4),
                   FilteringTextInputFormatter.digitsOnly,
                 ],
                 decoration: InputDecoration(
                   hintText: "Enter 4-Digit Code",
-                  hintStyle: const TextStyle(color: Color(0xFF8F9BBA), fontSize: 14, letterSpacing: 0),
+                  hintStyle: const TextStyle(
+                    color: Color(0xFF8F9BBA),
+                    fontSize: 14,
+                    letterSpacing: 0,
+                  ),
                   fillColor: const Color(0xFFF4F7FE),
                   filled: true,
                   border: OutlineInputBorder(

@@ -37,7 +37,7 @@ import '../../ui/screens/pending_setup/vehicle_setup/vehicle_setup_screen.dart';
 import '../../ui/screens/profile_screen.dart';
 import '../../ui/screens/splash/splash_screen.dart';
 import '../../ui/screens/trips/trips_screen.dart';
-import '../../ui/screens/trips/verify_pin_screen.dart';
+import '../../ui/screens/trips/verify_bulk_pin_screen.dart';
 import '../../ui/screens/wallet/transactions/transactions_details_screen.dart';
 import '../../ui/screens/wallet/transactions/transactions_screen.dart';
 import '../../ui/screens/wallet/withdrawal/03_withdrawal_detail_screen.dart';
