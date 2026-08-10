@@ -43,7 +43,7 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
     // earnings/wallet call) can't blank out data the other already fetched
     // successfully - previously a single failing call in Future.wait
     // discarded every result, including "today's trips" that had loaded fine.
-    final tripsCountFuture = _repo.fetchTripsCount("day");
+    final tripsCountFuture = _repo.fetchTripsCount("year");
     final dailyEarningsFuture = _repo.fetchDailyEarnings();
     final currentTripsFuture = _repo.fetchCurrentTrips(event.tripStatus);
 

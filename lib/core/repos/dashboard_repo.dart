@@ -19,7 +19,7 @@ class DashboardRepoImpl implements DashboardRepo {
   Future<List<Trip>?> fetchCurrentTrips(String status) async {
     try {
       final result = await _service.fetchTrips(status);
-      debugPrint("Trip Stacktrace: ${result.data?.toJson()}");
+      debugPrint("Current Trip Data: ${result.data?.toJson()}");
       return result.data?.data;
     } catch (e, stacktrace) {
       AppLogger.e('Failed to fetch current trips', 'DashboardRepo', e, stacktrace);
@@ -37,7 +37,7 @@ class DashboardRepoImpl implements DashboardRepo {
   @override
   Future<int?> fetchTripsCount(String period) async {
     final result = await _service.fetchTripsCount(period);
-    debugPrint("Trip data: ${result.data?.toJson()}");
+    debugPrint("Trip count data: ${result.data}");
     return result.data["totalCompleted"] ?? 0;
   }
 }

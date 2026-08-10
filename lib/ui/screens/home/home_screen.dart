@@ -293,7 +293,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       EarningsSummaryCard(
                         amount: totalEarnings,
                         tripsCompleted: tripsCount,
-                        hours: 0.0,
+                        // hours: 0.0,
                       ),
                     ],
 

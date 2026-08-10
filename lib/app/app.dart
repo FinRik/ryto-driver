@@ -23,8 +23,8 @@ class App {
     await setupBottomSheetUi();
     try {
       await PushNotificationService().initNotification();
-    } catch (error) {
-      print('Failed to initialize push notifications: $error');
+    } catch (error, stackTrace) {
+      print('Failed to initialize push notifications: $error\n$stackTrace');
     }
     await initGoogleMapKey();
     HydratedBloc.storage = await HydratedStorage.build(

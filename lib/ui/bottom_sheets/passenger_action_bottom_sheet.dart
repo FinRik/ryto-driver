@@ -15,6 +15,7 @@ import '../widgets/buttons/button.dart';
 import '../screens/trip_action/bloc/trip_action_bloc.dart';
 import '../widgets/currency_formatter_widget.dart';
 import '../widgets/layouts/base_bottom_sheet.dart';
+import '../widgets/trip_route_map.dart';
 
 class PassengerActionBottomSheet extends StatelessWidget {
   final BookingSummary bookingSummary;
@@ -25,6 +26,13 @@ class PassengerActionBottomSheet extends StatelessWidget {
     required this.tripSummary,
     required this.bookingSummary,
   });
+
+  void _openRouteComparisonSheet(BuildContext context) {
+    sl<BottomSheetService>().showCustomBottomSheet<TripSummary, void>(
+      variant: BottomSheetType.mapNavigation,
+      data: tripSummary,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -188,6 +196,111 @@ class PassengerActionBottomSheet extends StatelessWidget {
               //     lng: bookingSummary.passengerDropoffLng,
               //   ),
               // ),
+              // Note: prompt the driver to compare routes before accepting
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF7ED),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(
+                        Icons.info_outline,
+                        color: Color(0xFFF6AD55),
+                        size: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      const Expanded(
+                        child: Text(
+                          "Check this passenger's pickup/drop-off against your trip route before accepting the request.",
+                          style: TextStyle(
+                            color: Color(0xFF8A5A1F),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              /// route map section
+              GestureDetector(
+                onTap: () => _openRouteComparisonSheet(context),
+                child: Container(
+                  height: 150,
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    color: Colors.blue.withOpacity(0.1),
+                  ),
+                  child: Stack(
+                    children: [
+                      TripRouteMap(
+                        hasRoundedEdges: true,
+                        olat: bookingSummary.passengerPickupLat,
+                        olng: bookingSummary.passengerPickupLng,
+                        dlat: bookingSummary.passengerDropoffLat,
+                        dlng: bookingSummary.passengerDropoffLng,
+                      ),
+                      // Transparent overlay so a single tap opens the full
+                      // route comparison instead of being consumed by the
+                      // GoogleMap's own pan/zoom gesture handling.
+                      Positioned.fill(
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => _openRouteComparisonSheet(context),
+                          child: Container(color: Colors.transparent),
+                        ),
+                      ),
+                      Positioned(
+                        right: 10,
+                        bottom: 10,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.15),
+                                blurRadius: 4,
+                              ),
+                            ],
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.map_outlined,
+                                size: 14,
+                                color: Color(0xFF0061FF),
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                "Compare route",
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF0061FF),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,

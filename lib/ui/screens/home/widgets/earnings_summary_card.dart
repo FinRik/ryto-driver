@@ -7,13 +7,13 @@ import '../../../widgets/currency_formatter_widget.dart';
 class EarningsSummaryCard extends StatelessWidget {
   final String amount;
   final int tripsCompleted;
-  final double hours;
+  final double? hours;
 
   const EarningsSummaryCard({
     super.key,
     required this.amount,
     required this.tripsCompleted,
-    required this.hours,
+    this.hours,
   });
 
   @override
@@ -65,8 +65,10 @@ class EarningsSummaryCard extends StatelessWidget {
           Row(
             children: [
               _buildInfoItem("TRIPS", "$tripsCompleted Completed"),
+              if(hours != null) ...[
               const SizedBox(width: 32),
               _buildInfoItem("HOURS", "${hours}h"),
+              ],
               const Spacer(),
               ElevatedButton(
                 onPressed: () => context.read<BottomNavCubit>().moveTo(2),

@@ -6,7 +6,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_routes/google_maps_routes.dart';
 import 'package:maps_toolkit/maps_toolkit.dart' as mtk;
-import 'package:ryto_driver/ui/widgets/buttons/button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/models/trip/trip_summary.dart';
@@ -60,6 +59,39 @@ class _InAppNavigationSheetState extends State<InAppNavigationBottomSheet> {
     final List<dynamic> bookings = summary.bookings;
 
     setState(() {
+      _markers.add(
+        Marker(
+          markerId: const MarkerId("origin"),
+          position: LatLng(summary.originLat, summary.originLng),
+          infoWindow: const InfoWindow(title: "Trip Origin"),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueGreen,
+          ),
+        ),
+      );
+
+      _markers.add(
+        Marker(
+          markerId: const MarkerId("driver_pickup"),
+          position: LatLng(summary.pickupLat, summary.pickupLng),
+          infoWindow: const InfoWindow(title: "Driver Pickup Point"),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueViolet,
+          ),
+        ),
+      );
+
+      _markers.add(
+        Marker(
+          markerId: const MarkerId("driver_dropoff"),
+          position: LatLng(summary.dropoffLat, summary.dropoffLng),
+          infoWindow: const InfoWindow(title: "Driver Drop-off Point"),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueMagenta,
+          ),
+        ),
+      );
+
       _markers.add(
         Marker(
           markerId: const MarkerId("final_destination"),
@@ -223,12 +255,21 @@ class _InAppNavigationSheetState extends State<InAppNavigationBottomSheet> {
       ),
     );
 
-    // Add intermediate passenger waypoint constraints dynamically
+    // Driver's own pickup point (e.g. package/meeting point)
+    navigationSequence.add(LatLng(summary.pickupLat, summary.pickupLng));
+
+    // Add intermediate passenger pickup/drop-off waypoint constraints dynamically
     for (var b in summary.bookings) {
       navigationSequence.add(
         LatLng(b.passengerPickupLat, b.passengerPickupLng),
       );
+      navigationSequence.add(
+        LatLng(b.passengerDropoffLat, b.passengerDropoffLng),
+      );
     }
+
+    // Driver's own drop-off point
+    navigationSequence.add(LatLng(summary.dropoffLat, summary.dropoffLng));
 
     // Target final destination endpoint termination
     navigationSequence.add(
@@ -308,7 +349,7 @@ class _InAppNavigationSheetState extends State<InAppNavigationBottomSheet> {
     return BaseBottomSheet(
       showHandleBar: true,
       hasScrollableChild: true,
-      multiplier: .98,
+      multiplier: .92,
       padding: EdgeInsets.only(top: 14),
       builder: (context, size) {
         return Column(
@@ -384,6 +425,7 @@ class _InAppNavigationSheetState extends State<InAppNavigationBottomSheet> {
                 ],
               ),
             ),
+            SizedBox(height: 16),
           ],
         );
       },
