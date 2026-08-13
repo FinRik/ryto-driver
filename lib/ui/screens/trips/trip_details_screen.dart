@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../app/app_setup_locator.dart';
 import '../../../core/enums/bottom_sheet_type.dart';
+import '../../../core/models/arrival_estimate.dart';
 import '../../../core/models/trip/trip.dart';
 import '../../../core/models/trip/trip_summary.dart';
 import '../../../core/services/bottom_sheet_service.dart';
@@ -30,6 +34,8 @@ class TripDetailsScreen extends StatefulWidget {
 
 class _TripDetailsScreenState extends State<TripDetailsScreen> {
   bool _hasOpenedNavigationSheet = false;
+  StreamSubscription<Position>? _positionStream;
+  Position? _currentPosition;
 
   @override
   void initState() {
@@ -37,10 +43,69 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _fetchTripDetail());
   }
 
+  @override
+  void dispose() {
+    _positionStream?.cancel();
+    super.dispose();
+  }
+
   void _fetchTripDetail() {
     context.read<TripsBloc>().add(
       FetchTripDetailsRequested(widget.trip.id.toString()),
     );
+  }
+
+  /// Starts streaming the driver's live position once the trip is in
+  /// progress, so trip progress can reflect actual distance covered.
+  Future<void> _startLiveLocationTracking() async {
+    if (_positionStream != null) return;
+
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) return;
+
+    var permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      return;
+    }
+
+    _positionStream = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 10,
+      ),
+    ).listen((position) {
+      if (mounted) setState(() => _currentPosition = position);
+    });
+  }
+
+  /// Fraction of the trip completed. While in progress, prefers live GPS
+  /// distance-to-destination and falls back to elapsed time until a fix
+  /// arrives.
+  double _calculateTripProgress(TripSummary summary, ArrivalEstimate eta) {
+    if (summary.tripPhase == "COMPLETED") return 1.0;
+    if (summary.tripPhase != "IN_PROGRESS") return 0.0;
+
+    final position = _currentPosition;
+    if (position != null && summary.distanceKm > 0) {
+      final remainingMeters = Geolocator.distanceBetween(
+        position.latitude,
+        position.longitude,
+        summary.destinationLat,
+        summary.destinationLng,
+      );
+      final totalMeters = summary.distanceKm * 1000;
+      return (1 - (remainingMeters / totalMeters)).clamp(0.0, 1.0);
+    }
+
+    if (eta.durationSeconds <= 0) return 0.0;
+    final elapsedSeconds = DateTime.now()
+        .difference(summary.departureDateTime)
+        .inSeconds;
+    return (elapsedSeconds / eta.durationSeconds).clamp(0.0, 1.0);
   }
 
   void _openNavigationBottomSheet(TripSummary summary) {
@@ -65,7 +130,11 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
         },
         listener: (context, state) {
           final summary = state.selectedTrip;
-          if (summary != null && !_hasOpenedNavigationSheet) {
+          if (summary == null) return;
+
+          _startLiveLocationTracking();
+
+          if (!_hasOpenedNavigationSheet) {
             _hasOpenedNavigationSheet = true;
             _openNavigationBottomSheet(summary);
           }
@@ -193,6 +262,7 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                             destLng: summary.destinationLng,
                             departureDateTime: widget.trip.departureDateTime,
                             builder: (ctx, eta) => TripInfoCard(
+                              progress: _calculateTripProgress(summary, eta),
                               tripInfos: [
                                 TripInfo(
                                   title: "Departure",

@@ -13,8 +13,11 @@ class TripInfo {
 }
 
 class TripInfoCard extends StatelessWidget {
-  const TripInfoCard({super.key, required this.tripInfos});
+  const TripInfoCard({super.key, required this.tripInfos, this.progress = 0.0});
   final List<TripInfo> tripInfos;
+
+  /// Fraction of the trip completed, from 0.0 (not started) to 1.0 (arrived).
+  final double progress;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +52,7 @@ class TripInfoCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
-          const LinearProgressIndicator(value: 0.9),
+          LinearProgressIndicator(value: progress.clamp(0.0, 1.0)),
         ],
       ),
     );
