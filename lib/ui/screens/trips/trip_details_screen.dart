@@ -13,6 +13,7 @@ import '../../../core/models/trip/trip_summary.dart';
 import '../../../core/services/bottom_sheet_service.dart';
 import '../../widgets/arrival_time_widget.dart';
 import '../../widgets/buttons/back_arrow_button.dart';
+import '../../widgets/buttons/button.dart';
 import '../../widgets/customs/event_state_widgets.dart';
 import '../../widgets/layouts/base_scaffold_widget.dart';
 import '../../widgets/loaders/circular_indicator.dart';
@@ -349,9 +350,22 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                           const SizedBox(height: 32),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: TripBreakdownCard(
-                              trip: widget.trip,
-                              bookings: state.bookings,
+                            child: Column(
+                              children: [
+                                TripBreakdownCard(
+                                  trip: widget.trip,
+                                  bookings: state.bookings,
+                                ),
+                                const SizedBox(height: 20),
+                                Button.outline(
+                                  buttonColor: Color(0xffECF3FE),
+                                  onTap: () => sl<BottomSheetService>()
+                                      .showCustomBottomSheet(
+                                    variant: BottomSheetType.contactSupport,
+                                  ),
+                                  text: "Contact Support",
+                                ),
+                              ],
                             ),
                           ),
                           const SizedBox(height: 20),

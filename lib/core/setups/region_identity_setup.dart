@@ -8,6 +8,8 @@ abstract class RegionIdentity {
   String get currencySymbol;
   String get currencyCode;
   String get kycType;
+  String get supportPhone;
+  String get supportWhatsappLink;
 
   // Use a getter to dynamically fetch the symbol via intl
   // String get currencySymbol =>
@@ -33,6 +35,10 @@ class NGIdentity extends RegionIdentity {
   String get currencyCode => 'NGN';
   @override
   String get kycType => 'NIN / BVN';
+  @override
+  String get supportPhone => '+234 704 700 3608';
+  @override
+  String get supportWhatsappLink => 'https://wa.me/message/TBPZOW7D3JTDA1';
 }
 
 class USIdentity extends RegionIdentity {
@@ -50,4 +56,8 @@ class USIdentity extends RegionIdentity {
   String get currencyCode => 'USD';
   @override
   String get kycType => 'SSN / State ID';
+  @override
+  String get supportPhone => '+1 817-554-8929';
+  @override
+  String get supportWhatsappLink => 'https://wa.me/message/P4BMYREGIHK3O1';
 }

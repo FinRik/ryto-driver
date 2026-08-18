@@ -28,4 +28,6 @@ class SocialHelper {
 
   static Future<void> sendEmail(String email, {String subject = ''}) =>
       _launchUrl('mailto:$email?subject=${Uri.encodeComponent(subject)}');
+
+  static Future<void> openWhatsApp(String link) => _launchUrl(link);
 }

@@ -2,6 +2,7 @@ import '../../app/app_setup_locator.dart';
 import '../../ui/bottom_sheets/cancel_bottom_sheet.dart';
 import '../../ui/bottom_sheets/chat_bottom_sheet.dart';
 import '../../ui/bottom_sheets/cities_bottom_sheet.dart';
+import '../../ui/bottom_sheets/contact_support_bottom_sheet.dart';
 import '../../ui/bottom_sheets/in_app_navigation_bottom_sheet.dart';
 import '../../ui/bottom_sheets/region_selector_bottom_sheet.dart';
 import '../../ui/bottom_sheets/states_bottom_sheet.dart';
@@ -29,14 +30,7 @@ Future<void> setupBottomSheetUi() async {
         InAppNavigationBottomSheet(request: request, completer: completer),
     BottomSheetType.cancelTrip: (request, completer) =>
         CancelBookingBottomSheet(request: request, completer: completer),
-    //     BottomSheetType.serviceProviderPlan: (request, completer) => SelectServicePlanBottomSheet(request: request, completer: completer),
-    //     BottomSheetType.strings: (request, completer) => StringsBottomSheet(request: request, completer: completer),
-    //     BottomSheetType.transactionType: (request, completer) => SelectTransactionTypeBottomSheet(request: request, completer: completer),
-    //     BottomSheetType.transactionStatus: (request, completer) => SelectTransactionStatusBottomSheet(request: request, completer: completer),
-    //     BottomSheetType.transactionTime: (request, completer) => SelectTimeFrameBottomSheet(request: request, completer: completer),
-    //     BottomSheetType.verifyNumber: (request, completer) => VerifyOtpBottomSheet(request: request, completer: completer),
-    //     BottomSheetType.transferPin: (request, completer) => TransferPinBottomSheet(request: request, completer: completer),
-    //     BottomSheetType.manualAccounts: (request, completer) => ManualAccountsBottomSheet(request: request, completer: completer),
+    BottomSheetType.contactSupport: (request, completer) => ContactSupportBottomSheet(request: request, completer: completer),
   };
 
   bottomSheetService.setCustomSheetBuilders(builders);

@@ -37,7 +37,7 @@ class AppIcons {
   static const String help = "$_iconPath/help.svg";
   static const String logout = "$_iconPath/logout.svg";
   static const String security = "$_iconPath/security.svg";
-  static const String settings = "$_iconPath/profile.svg";
+  static const String settings = "$_iconPath/settings.svg";
   static const String vehicle = "$_iconPath/vehicle.svg";
 
   static const String users = "$_iconPath/user.svg";

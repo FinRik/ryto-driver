@@ -53,7 +53,7 @@ class ProfileMenuItem {
       status: ActionStatus.notSet,
     ),
     ProfileMenuItem(
-      icon: AppIcons.settings,
+      icon: AppIcons.contactCard,
       title: "Trip Drafts",
       subtitle: "Access unpublished trips",
       route: Paths.TRIPDRAFT,
@@ -62,7 +62,8 @@ class ProfileMenuItem {
     ProfileMenuItem(
       icon: AppIcons.security,
       title: "Security Settings",
-      subtitle: "PIN, Biometrics, Password",
+      subtitle: "Account Management",
+      // subtitle: "PIN, Biometrics, Password",
       route: Paths.SECURITYANDPRIVACY,
       status: ActionStatus.notSet,
     ),
@@ -76,8 +77,15 @@ class ProfileMenuItem {
     ProfileMenuItem(
       icon: AppIcons.help,
       title: "Help & Support",
-      subtitle: "Contact us, FAQ, Legal",
+      subtitle: "FAQ, Legal",
       route: Paths.SUPPORT,
+      status: ActionStatus.notSet,
+    ),
+    ProfileMenuItem(
+      icon: AppIcons.help,
+      title: "Contact Support",
+      subtitle: "Contact us",
+      route: "openSupportSheet",
       status: ActionStatus.notSet,
     ),
   ];

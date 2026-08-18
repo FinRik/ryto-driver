@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../core/enums/action_status.dart';
-import '../../core/models/01_uis/profile_menu_item.dart';
-import '../../core/routes/routes.dart';
-import '../widgets/app_bars/profile_header_app_bar.dart';
-import '../widgets/layouts/base_scaffold_widget.dart';
-import '../blocs/profile/profile_bloc.dart';
-import '../widgets/customs/svg_widget.dart';
-import '../../core/routes/router.dart';
-import '../../app/res/icons.dart';
-import '../widgets/loaders/circular_indicator.dart';
-import 'auth/bloc/auth_bloc.dart';
+import '../../../app/app_setup_locator.dart';
+import '../../../core/enums/action_status.dart';
+import '../../../core/enums/bottom_sheet_type.dart';
+import '../../../core/models/01_uis/profile_menu_item.dart';
+import '../../../core/routes/routes.dart';
+import '../../../core/services/bottom_sheet_service.dart';
+import '../../widgets/app_bars/profile_header_app_bar.dart';
+import '../../widgets/layouts/base_scaffold_widget.dart';
+import '../../blocs/profile/profile_bloc.dart';
+import '../../widgets/customs/svg_widget.dart';
+import '../../../core/routes/router.dart';
+import '../../../app/res/icons.dart';
+import '../../widgets/loaders/circular_indicator.dart';
+import '../auth/bloc/auth_bloc.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -59,6 +62,10 @@ class ProfileScreen extends StatelessWidget {
                         router.push(item.route, extra: true);
                       } else if (item.title == "Trip Preferences") {
                         router.push(item.route, extra: false);
+                      } else if (item.title == "Contact Support") {
+                        sl<BottomSheetService>().showCustomBottomSheet(
+                          variant: BottomSheetType.contactSupport,
+                        );
                       } else {
                         router.push(item.route);
                       }

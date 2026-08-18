@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../widgets/buttons/back_arrow_header.dart';
-import '../../widgets/buttons/button.dart';
-import '../../widgets/layouts/base_scaffold_widget.dart';
+import '../../../widgets/buttons/back_arrow_header.dart';
+import '../../../widgets/buttons/button.dart';
+import '../../../widgets/layouts/base_scaffold_widget.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../../../app/api_urls.dart';
-import '../../../core/routes/router.dart';
-import '../../../core/routes/routes.dart';
-import '../../../utils/helpers/socials_helper.dart';
-import '../../widgets/buttons/back_arrow_header.dart';
-import '../../widgets/layouts/base_scaffold_widget.dart';
-import 'widgets/support_category_card.dart';
+import '../../../../app/api_urls.dart';
+import '../../../../app/app_setup_locator.dart';
+import '../../../../core/enums/bottom_sheet_type.dart';
+import '../../../../core/routes/router.dart';
+import '../../../../core/routes/routes.dart';
+import '../../../../core/services/bottom_sheet_service.dart';
+import '../../../../utils/helpers/socials_helper.dart';
+import '../../../widgets/buttons/back_arrow_header.dart';
+import '../../../widgets/layouts/base_scaffold_widget.dart';
+import '../widgets/support_category_card.dart';
 
 class HelpSupportScreen extends StatelessWidget {
   const HelpSupportScreen({super.key});
@@ -60,25 +63,37 @@ class HelpSupportScreen extends StatelessWidget {
                   icon: Icons.person_outline,
                   label: "Account & Profile",
                   iconColor: Colors.blue,
-                  onTap: () => SocialHelper.sendEmail("support@getryto.com",subject: "Account & Profile"),
+                  // onTap: () => SocialHelper.sendEmail("support@getryto.com",subject: "Account & Profile"),
+                  onTap: () => sl<BottomSheetService>().showCustomBottomSheet(
+                    variant: BottomSheetType.contactSupport,
+                  ),
                 ),
                 SupportCategoryCard(
                   icon: Icons.account_balance_wallet_outlined,
                   label: "Earnings & Payouts",
                   iconColor: Colors.green,
-                  onTap: () => SocialHelper.sendEmail("support@getryto.com", subject: "Earnings & Payouts"),
+                  // onTap: () => SocialHelper.sendEmail("support@getryto.com", subject: "Earnings & Payouts"),
+                  onTap: () => sl<BottomSheetService>().showCustomBottomSheet(
+                    variant: BottomSheetType.contactSupport,
+                  ),
                 ),
                 SupportCategoryCard(
                   icon: Icons.car_rental,
                   label: "Trip Issues",
                   iconColor: Colors.orange,
-                  onTap: () => SocialHelper.sendEmail("support@getryto.com", subject: "Trip Issues"),
+                  // onTap: () => SocialHelper.sendEmail("support@getryto.com", subject: "Trip Issues"),
+                  onTap: () => sl<BottomSheetService>().showCustomBottomSheet(
+                    variant: BottomSheetType.contactSupport,
+                  ),
                 ),
                 SupportCategoryCard(
                   icon: Icons.phonelink_setup,
                   label: "App Technical Support",
                   iconColor: Colors.purple,
-                  onTap: () => SocialHelper.sendEmail("support@getryto.com", subject: "App Technical Support"),
+                  // onTap: () => SocialHelper.sendEmail("support@getryto.com", subject: "App Technical Support"),
+                  onTap: () => sl<BottomSheetService>().showCustomBottomSheet(
+                    variant: BottomSheetType.contactSupport,
+                  ),
                 ),
               ],
             ),
@@ -114,7 +129,7 @@ class HelpSupportScreen extends StatelessWidget {
             const SizedBox(height: 40),
             const Center(
               child: Text(
-                "APP VERSION 1.0.0\n(10)",
+                "APP VERSION 1.0.0\n(4)",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Color(0xFF8F9BBA),

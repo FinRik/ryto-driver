@@ -6,9 +6,5 @@ enum BottomSheetType {
   verification,
   mapNavigation,
   cancelTrip,
-  // transactionTime,
-  // verifyNumber,
-  // transferPin,
-  // manualAccounts,
-  // strings,
+  contactSupport
 }
