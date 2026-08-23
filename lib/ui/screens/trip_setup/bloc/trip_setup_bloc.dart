@@ -34,8 +34,9 @@ class TripSetupBloc extends Bloc<TripSetupEvent, TripSetupState> {
   ) async {
     emit(state.copyWith(status: TripSetupStatus.loading));
     try {
+      final request = (state.draft.copyWith(passengerSeats: 1));
       final response = await repo.fetchBookingCost(
-        _mapDraftToRequest(state.draft),
+        _mapDraftToRequest(request),
       );
       if (response != null) {
         emit(
@@ -111,91 +112,3 @@ class TripSetupBloc extends Bloc<TripSetupEvent, TripSetupState> {
     );
   }
 }
-
-// class TripSetupBloc extends Bloc<TripSetupEvent, TripSetupState> {
-//   final BookingRepo repo;
-//
-//   TripSetupBloc(this.repo) : super(TripSetupInitial()) {
-//     // Update data as user moves through screens
-//     on<UpdateTripDraft>((event, emit) {
-//       emit(TripDraftUpdated(event.updatedDraft));
-//     });
-//
-//     on<FetchBookingCostRequested>(_onFetchCost);
-//
-//     // Final submission
-//     on<CreateTripRequested>((event, emit) async {
-//       final currentDraft = state.draft;
-//       emit(TripSetupLoading(currentDraft));
-//
-//       try {
-//         final success = await repo.createTrip(currentDraft);
-//         if (success) {
-//           emit(TripSetupSuccess(currentDraft, "Trip created successfully!"));
-//         } else {
-//           emit(TripSetupFailure(currentDraft, "Failed to create trip."));
-//         }
-//       } catch (e) {
-//         emit(TripSetupFailure(currentDraft, e.toString()));
-//       }
-//     });
-//
-//     on<ResetTripSetup>((event, emit) {
-//       emit(TripSetupInitial());
-//     });
-//   }
-//
-//   Future<void> _onFetchCost(
-//     FetchBookingCostRequested event,
-//     Emitter<TripSetupState> emit,
-//   ) async {
-//     emit(state.copyWith(setupStatus: PackageBookingStatus.loading));
-//     try {
-//       final res = await repo.fetchBookingCost(
-//         TripCostRequest(
-//           vehicleId: state.draft.vehicleId,
-//           seats: state.draft.passengerSeats,
-//           bookingLocation: state.draft.originCity,
-//           originLocation: LatLng(
-//             lat: state.draft.originLat!,
-//             lng: state.draft.originLng!,
-//           ),
-//           destinationLocation: LatLng(
-//             lat: state.draft.destinationLat!,
-//             lng: state.draft.destinationLng!,
-//           ),
-//           pickupLocation: LatLng(
-//             lat: state.draft.pickupLat,
-//             lng: state.draft.pickupLng,
-//           ),
-//           dropoffLocation: LatLng(
-//             lat: state.draft.dropoffLat,
-//             lng: state.draft.dropoffLng,
-//           ),
-//         ),
-//       );
-//       if (res != null) {
-//         emit(
-//           state.copyWith(
-//             setupStatus: PackageBookingStatus.success,
-//             costSummary: res,
-//           ),
-//         );
-//       } else {
-//         emit(
-//           state.copyWith(
-//             setupStatus: PackageBookingStatus.failure,
-//             errorMessage: "Failed to calculate trip cost",
-//           ),
-//         );
-//       }
-//     } catch (e) {
-//       emit(
-//         state.copyWith(
-//           setupStatus: PackageBookingStatus.failure,
-//           errorMessage: e.toString(),
-//         ),
-//       );
-//     }
-//   }
-// }

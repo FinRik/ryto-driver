@@ -15,7 +15,7 @@ class CustomErrorDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('An Error Occurred'),
-      content: Text(errorMessage),
+      content: Text(errorMessage, style: TextStyle(fontFamily: "Roboto"),),
       actions: <Widget>[
         TextButton(
           onPressed: () {
