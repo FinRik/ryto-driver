@@ -32,7 +32,8 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
   final _region = sl<RegionIdentity>();
   bool _isRegionInitialized = false;
 
-  final _fullNameController = TextEditingController();
+  final _firstnameController = TextEditingController();
+  final _lastnameController = TextEditingController();
   final _emailController = TextEditingController();
   final _dobController = TextEditingController();
   final _nationalityController = TextEditingController();
@@ -198,16 +199,25 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
 
                       // Form Fields
                       AuthTextField(
-                        controller: _fullNameController,
+                        controller: _firstnameController,
                         textInputType: TextInputType.text,
-                        label: "Full name",
-                        hint: "Enter your Full Name",
+                        label: "Firstname",
+                        hint: "Enter your Firstname",
                         validator: (value) =>
-                            (value == null || value.trim().isEmpty)
-                            ? "Full name is required"
+                        (value == null || value.trim().isEmpty)
+                            ? "Firstname is required"
                             : null,
                       ),
-
+                      AuthTextField(
+                        controller: _lastnameController,
+                        textInputType: TextInputType.text,
+                        label: "Surname",
+                        hint: "Enter your Surname",
+                        validator: (value) =>
+                        (value == null || value.trim().isEmpty)
+                            ? "Surname is required"
+                            : null,
+                      ),
                       AuthTextField(
                         controller: _emailController,
                         textInputType: TextInputType.emailAddress,
@@ -328,7 +338,8 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
       return;
     }
 
-    final names = _fullNameController.text.trim().split(RegExp(r'\s+'));
+    final firstname = _firstnameController.text.trim();
+    final lastname = _lastnameController.text.trim();
     final dob = DateTimeHelper.parseBackendFormat(
       _dobController.text.trim(),
     );
@@ -341,8 +352,8 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
     }
 
     final request = ProfileRequest(
-      firstName: names.first,
-      lastName: names.length > 1 ? names.last : "",
+      firstName: firstname,
+      lastName: lastname,
       email: _emailController.text.trim(),
       dateOfBirth: dob,
       homeAddress: _addressController.text.trim(),
@@ -356,7 +367,8 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
 
   @override
   void dispose() {
-    _fullNameController.dispose();
+    _firstnameController.dispose();
+    _lastnameController.dispose();
     _dobController.dispose();
     _nationalityController.dispose();
     _addressController.dispose();

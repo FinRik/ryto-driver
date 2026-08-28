@@ -1,0 +1,91 @@
+HOW TO USE flutter-build-release.yml
+(Android build, GitHub Release, and Google Play publishing)
+=============================================================
+
+This workflow builds the Flutter app (APK + AAB), creates a GitHub Release,
+and — on pushes to `main` only — uploads the AAB to Google Play.
+
+It needs 5 repository secrets before the signing/Play Store steps will work.
+Add them at:
+  GitHub repo -> Settings -> Secrets and variables -> Actions -> New repository secret
+
+
+1) ANDROID SIGNING SECRETS
+---------------------------
+These come from your existing local file: android/key.properties
+and the keystore it points to: android/app/upload-customer-keystore.jks
+
+  a) ANDROID_KEYSTORE_BASE64
+     Base64-encode the keystore file and paste the output as the secret value:
+
+         base64 -w0 android/app/upload-customer-keystore.jks
+
+     (On macOS, use: base64 -i android/app/upload-customer-keystore.jks | tr -d '\n')
+
+  b) ANDROID_KEYSTORE_PASSWORD
+     Value of `storePassword` in android/key.properties
+
+  c) ANDROID_KEY_ALIAS
+     Value of `keyAlias` in android/key.properties
+
+  d) ANDROID_KEY_PASSWORD
+     Value of `keyPassword` in android/key.properties
+
+Never commit key.properties or the .jks file — both are already gitignored.
+
+
+2) GOOGLE PLAY SERVICE ACCOUNT
+-------------------------------
+  e) PLAY_STORE_SERVICE_ACCOUNT_JSON
+
+  How to create it:
+    1. Go to Google Play Console -> Setup -> API access.
+    2. Create (or link) a Google Cloud service account.
+    3. In Google Cloud Console, create a JSON key for that service account
+       and download it.
+    4. Back in Play Console -> API access, grant the service account
+       "Release manager" permission (or a custom role that can manage
+       production/testing releases) for this app.
+    5. Copy the ENTIRE contents of the downloaded JSON file and paste it
+       as the secret value (paste the raw JSON, not base64).
+
+  IMPORTANT (first release only):
+  The Google Play API cannot create a brand-new app listing or upload the
+  very first AAB for an app. If "Ryto Customer" (com.ryto.customer) has
+  never been uploaded to Play Console before, you must manually create the
+  app and upload one AAB through the Play Console website first. After
+  that, this workflow can publish all future updates automatically.
+
+
+3) RUNNING THE WORKFLOW
+------------------------
+  - Automatic: push to `main`, `staging`, or `dev`.
+      * `main`   -> builds, creates a GitHub Release, AND uploads to Play Store.
+      * `staging`/`dev` -> builds and creates a GitHub Release only (no Play upload).
+  - Manual: Actions tab -> "Flutter Build & Release (Ryto Customer App)"
+    -> "Run workflow". You can choose the Play Store track:
+       internal | alpha | beta | production
+    (only used when run on the `main` branch; default is "internal").
+
+  Recommended: keep the default track as "internal" until you're confident
+  in the pipeline, then promote to production releases from Play Console,
+  or re-run manually with track=production.
+
+
+4) WHERE TO FIND THE BUILD OUTPUT
+-----------------------------------
+  - APK:  build/app/outputs/flutter-apk/app-release.apk
+  - AAB:  build/app/outputs/bundle/release/app-release.aab
+  Both are attached to the GitHub Release automatically.
+
+
+TROUBLESHOOTING
+----------------
+  - "Keystore was tampered with, or password was incorrect" ->
+    double-check ANDROID_KEYSTORE_BASE64 was generated with no line wraps
+    (use `base64 -w0`, not plain `base64`).
+  - "App not found" / 404 from Play upload step ->
+    the app hasn't been created in Play Console yet (see section 2).
+  - Play upload step is skipped ->
+    it only runs when the branch is `main` and the event is not a pull
+    request; check you pushed/dispatched against `main`.

@@ -1,0 +1,183 @@
+name: Flutter Build & Release (Ryto Driver App)
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+      - dev
+  pull_request:
+    branches:
+      - main
+      - staging
+      - dev
+  workflow_dispatch:           # Keep manual trigger for testing / hotfix releases
+    inputs:
+      tag_name:
+        description: "Release tag (overrides auto version)"
+        required: false
+      release_name:
+        description: "Release name"
+        required: false
+      prerelease:
+        description: "Mark as prerelease"
+        required: false
+        default: false
+        type: boolean
+      play_track:
+        description: "Play Store track to publish to (main branch only)"
+        required: false
+        default: "internal"
+        type: choice
+        options:
+          - internal
+          - alpha
+          - beta
+          - production
+
+jobs:
+  build-and-release:
+    name: Build & Release Flutter App
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed for git tag + release
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # important for commit count / tag history
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.35.7"   # ← update to your version
+          channel: stable
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      # ──────────────────────────────────────────────
+      # Determine version & tag strategy per branch
+      # ──────────────────────────────────────────────
+      - name: Determine version suffix
+        id: version
+        run: |
+          BRANCH="${{ github.ref_name }}"
+
+          if [[ "$BRANCH" == "main" ]]; then
+            SUFFIX=""
+            IS_PRERELEASE=false
+            echo "suffix=" >> "$GITHUB_OUTPUT"
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+            echo "prefix=v" >> "$GITHUB_OUTPUT"
+
+          elif [[ "$BRANCH" == "staging" ]]; then
+            # Option A: clean version + rc if you manage versions manually in pubspec
+            # Option B: auto increment like v1.2.0-rc.${{ github.run_number }}
+            # Here we use rc + run_number
+            SUFFIX="-rc.${{ github.run_number }}"
+            IS_PRERELEASE=true
+            echo "suffix=$SUFFIX" >> "$GITHUB_OUTPUT"
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+            echo "prefix=v" >> "$GITHUB_OUTPUT"
+
+          elif [[ "$BRANCH" == "dev" ]]; then
+            SUFFIX="-build.${{ github.run_number }}"
+            IS_PRERELEASE=true
+            echo "suffix=$SUFFIX" >> "$GITHUB_OUTPUT"
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+            echo "prefix=v0.0." >> "$GITHUB_OUTPUT"   # or just "build-" or whatever you like
+
+          else
+            echo "Unknown branch – skipping release"
+            exit 0
+          fi
+
+      # Optional: If you want automatic patch bump on main/staging, use a bump tool here
+      # - name: Bump version in pubspec.yaml (only main/staging)
+      #   if: github.ref_name == 'main' || github.ref_name == 'staging'
+      #   run: |
+      #     # Use dart pub global or custom script to bump patch
+      #     ...
+
+      # ──────────────────────────────────────────────
+      # Android release signing
+      #
+      # Required repo secrets:
+      #   ANDROID_KEYSTORE_BASE64   – `base64 -w0 upload-customer-keystore.jks`
+      #   ANDROID_KEYSTORE_PASSWORD – keystore store password
+      #   ANDROID_KEY_ALIAS         – signing key alias
+      #   ANDROID_KEY_PASSWORD      – signing key password
+      # ──────────────────────────────────────────────
+      - name: Decode Android signing keystore
+        run: echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/upload-customer-keystore.jks
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+
+      - name: Write key.properties
+        run: |
+          cat > android/key.properties <<EOF
+          storePassword=$ANDROID_KEYSTORE_PASSWORD
+          keyPassword=$ANDROID_KEY_PASSWORD
+          keyAlias=$ANDROID_KEY_ALIAS
+          storeFile=../app/upload-customer-keystore.jks
+          EOF
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+
+      # ──────────────────────────────────────────────
+      # Build Android (APK + AAB)
+      # ──────────────────────────────────────────────
+      - name: Build Android APK
+        run: flutter build apk --release
+
+      - name: Build Android App Bundle
+        run: flutter build appbundle --release
+
+      # ──────────────────────────────────────────────
+      # Push to Google Play Store (main branch only)
+      #
+      # Required repo secret:
+      #   PLAY_STORE_SERVICE_ACCOUNT_JSON – JSON key for a Play Console
+      #   service account with "Release manager" access to this app,
+      #   pasted in full (Settings → API access in Play Console).
+      # ──────────────────────────────────────────────
+      - name: Deploy to Google Play
+        if: github.ref_name == 'main' && github.event_name != 'pull_request'
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
+          packageName: com.ryto.driver
+          releaseFiles: build/app/outputs/bundle/release/app-release.aab
+          track: ${{ inputs.play_track || 'internal' }}
+          status: completed
+
+      # iOS builds (uncomment + macos runner when needed)
+      # - name: Build iOS IPA
+      #   runs-on: macos-latest
+      #   run: flutter build ipa --release
+
+      # ──────────────────────────────────────────────
+      # Create GitHub Release & upload artifacts
+      # ──────────────────────────────────────────────
+      - name: Create GitHub Release
+        if: github.event_name != 'pull_request'   # don't release on PR
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.prefix }}${{ github.sha }}${{ steps.version.outputs.suffix }}   # fallback if no input
+          # tag_name: ${{ inputs.tag_name || format('{0}{1}{2}', steps.version.outputs.prefix, github.sha, steps.version.outputs.suffix) }}
+          name: ${{ inputs.release_name || format('Build {0} ({1})', github.ref_name, github.sha) }}
+          prerelease: ${{ steps.version.outputs.prerelease || inputs.prerelease }}
+          files: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+          body: |
+            **Branch:** ${{ github.ref_name }}
+            **Commit:** ${{ github.sha }}
+            **Triggered by:** ${{ github.event_name }}
+            ${{ github.event.head_commit.message }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
