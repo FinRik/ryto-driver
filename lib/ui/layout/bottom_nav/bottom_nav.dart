@@ -28,7 +28,7 @@ class _BottomNavLayoutState extends State<BottomNavLayout> {
 
         return Scaffold(
           extendBody: false,
-          extendBodyBehindAppBar: true,
+          extendBodyBehindAppBar: false,
           body: widget.child,
           bottomNavigationBar: BottomNavigationBar(
             // selectedFontSize: 14.0,

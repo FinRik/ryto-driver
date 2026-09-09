@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 
 //previous iteration
 // class WeeklyBarChart extends StatelessWidget {
@@ -99,10 +100,6 @@ import 'package:flutter/material.dart';
 //     }).toList();
 //   }
 // }
-
-import 'dart:math' as math;
-import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
 
 class WeeklyBarChart extends StatelessWidget {
   final Map<String, double> weeklyData;

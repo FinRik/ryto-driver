@@ -20,21 +20,21 @@ class BaseScaffoldWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: appBar,
-        resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-        extendBodyBehindAppBar: extendBodyBehindAppBar,
-        backgroundColor: bgColor ?? Colors.white,
-        body: Padding(
+    return Scaffold(
+      appBar: appBar,
+      resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+      extendBodyBehindAppBar: extendBodyBehindAppBar,
+      backgroundColor: bgColor ?? Colors.white,
+      body: SafeArea(
+        child: Padding(
           padding: removePadding
               ? EdgeInsets.zero
               : const EdgeInsets.symmetric(horizontal: 24.0, vertical: 14),
           child: child,
         ),
-        bottomNavigationBar: bottomNavBar,
-        floatingActionButton: fab,
       ),
+      bottomNavigationBar: bottomNavBar,
+      floatingActionButton: fab,
     );
   }
 }

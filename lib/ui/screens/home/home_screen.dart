@@ -291,7 +291,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                     if (state.isFullyOnboarded(region.countryCode)) ...[
                       EarningsSummaryCard(
-                        amount: totalEarnings,
+                        walletData: state.dailyEarnings,
                         tripsCompleted: tripsCount,
                         // hours: 0.0,
                       ),

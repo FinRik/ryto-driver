@@ -33,6 +33,7 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
 
         return Column(
           children: [
+            SizedBox(height: 12),
             Container(
               decoration: BoxDecoration(
                 color: backgroundColor ?? const Color(0xffF6F7F8),

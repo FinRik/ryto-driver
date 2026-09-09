@@ -112,15 +112,16 @@ class _WalletScreenState extends State<WalletScreen> {
                     ],
                   ),
                   const SizedBox(height: 24),
-                  WeeklyEarningsCard(
-                    breakdown: wallet?.earningsByWeekday ?? {},
-                    totalAmount:
-                        wallet?.earningsByWeekday.values.fold(
-                          0.0,
-                          (sum, amount) => sum! + amount,
-                        ) ??
-                        0.0,
-                  ),
+                  if (wallet == null)
+                    CircularIndicator()
+                  else
+                    WeeklyEarningsCard(
+                      // breakdown: wallet?.earningsByWeekday ?? {},
+                      // currency: wallet?.currency,
+                      // totalAmount: wallet?.weekEarnings,
+                      // weekInfo: wallet?.week,
+                      walletData: wallet,
+                    ),
                   const SizedBox(height: 24),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

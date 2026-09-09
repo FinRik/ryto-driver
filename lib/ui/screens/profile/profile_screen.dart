@@ -41,8 +41,9 @@ class ProfileScreen extends StatelessWidget {
               children: [
                 ProfileHeaderAppBar(
                   name: user.displayName ?? user.fullname,
-                  joinDate:
-                      "Member since ${user.phoneVerifiedAt?.year ?? '2024'}",
+                  joinDate: user.phoneVerifiedAt?.year == null
+                      ? "Member since ${user.phoneVerifiedAt?.year}"
+                      : " ",
                   rating: "${user.rating}",
                   isVerified: user.identityVerified,
                   imageUrl: user.profilePicture ?? "",

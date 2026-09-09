@@ -207,7 +207,13 @@ abstract class ApiService {
 
   ///Wallet flow
   @GET(ApiUrls.walletDetails)
-  Future<BaseModel<WalletSummary>> fetchUserWallet();
+  Future<BaseModel<WalletSummary>> fetchUserWallet({
+    @Query("weekStart") String? weekStart,
+    @Query("weekOffset") int? weekOffset,
+    @Query("timezone") String? timezone,
+    @Query("from") String? from,
+    @Query("to") String? to,
+  });
 
   @GET(ApiUrls.transactions)
   Future<BaseModel<List<TransactionItem>>> fetchTransactions();

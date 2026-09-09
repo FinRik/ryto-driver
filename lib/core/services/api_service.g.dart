@@ -1299,9 +1299,21 @@ class _ApiService implements ApiService {
     );
   }
 
-  Future<BaseModel<WalletSummary>> _fetchUserWallet() async {
+  Future<BaseModel<WalletSummary>> _fetchUserWallet({
+    String? weekStart,
+    int? weekOffset,
+    String? timezone,
+    String? from,
+    String? to,
+  }) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      if (weekStart != null) r'weekStart': weekStart,
+      if (weekOffset != null) r'weekOffset': weekOffset,
+      if (timezone != null) r'timezone': timezone,
+      if (from != null) r'from': from,
+      if (to != null) r'to': to,
+    };
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<BaseModel<WalletSummary>>(
@@ -1329,9 +1341,21 @@ class _ApiService implements ApiService {
   }
 
   @override
-  Future<BaseModel<WalletSummary>> fetchUserWallet() {
+  Future<BaseModel<WalletSummary>> fetchUserWallet({
+    String? weekStart,
+    int? weekOffset,
+    String? timezone,
+    String? from,
+    String? to
+  }) {
     return ErrorAdapter<BaseModel<WalletSummary>>().adapt(
-      () => _fetchUserWallet(),
+      () => _fetchUserWallet(
+        weekStart: weekStart,
+        weekOffset: weekOffset,
+        timezone: timezone,
+        from: from,
+        to: to,
+      ),
     );
   }
 

@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/models/wallet/wallet_summary.dart';
 import '../../../layout/bottom_nav/cubit/bottom_nav_cubit.dart';
 import '../../../widgets/currency_formatter_widget.dart';
+import '../../../widgets/loaders/circular_indicator.dart';
 
 class EarningsSummaryCard extends StatelessWidget {
-  final String amount;
+  final WalletSummary? walletData;
   final int tripsCompleted;
   final double? hours;
 
   const EarningsSummaryCard({
     super.key,
-    required this.amount,
-    required this.tripsCompleted,
+    required this.walletData,
+    this.tripsCompleted = 0,
     this.hours,
   });
 
@@ -24,11 +26,6 @@ class EarningsSummaryCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF0061FF),
         borderRadius: BorderRadius.circular(20),
-        // image: const DecorationImage(
-        //   image: AssetImage('assets/card_mesh_pattern.png'), // Subtle background texture
-        //   opacity: 0.1,
-        //   fit: BoxFit.cover,
-        // ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,14 +41,20 @@ class EarningsSummaryCard extends StatelessWidget {
                     style: TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                   const SizedBox(height: 4),
-                  CurrencyFormatterWidget(
-                    amount: amount,
-                    textColor: Colors.white,
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
+                  if (walletData == null) ...[
+                    CircularIndicator(bgColor: Colors.white),
+                  ],
+                  if (walletData != null) ...[
+                    CurrencyFormatterWidget(
+                      amount: walletData!.todayEarnings.toStringAsFixed(2),
+                      // currencySymbol: walletData.currency,
+                      textColor: Colors.white,
+                      style: const TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
+                  ],
                 ],
               ),
               const Icon(
@@ -65,9 +68,9 @@ class EarningsSummaryCard extends StatelessWidget {
           Row(
             children: [
               _buildInfoItem("TRIPS", "$tripsCompleted Completed"),
-              if(hours != null) ...[
-              const SizedBox(width: 32),
-              _buildInfoItem("HOURS", "${hours}h"),
+              if (hours != null) ...[
+                const SizedBox(width: 32),
+                _buildInfoItem("HOURS", "${hours}h"),
               ],
               const Spacer(),
               ElevatedButton(

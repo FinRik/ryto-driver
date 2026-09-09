@@ -6,5 +6,6 @@ enum BottomSheetType {
   verification,
   mapNavigation,
   cancelTrip,
-  contactSupport
+  contactSupport,
+  uploadSource,
 }

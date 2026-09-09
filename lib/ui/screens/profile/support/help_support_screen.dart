@@ -129,7 +129,7 @@ class HelpSupportScreen extends StatelessWidget {
             const SizedBox(height: 40),
             const Center(
               child: Text(
-                "APP VERSION 1.0.0\n(4)",
+                "APP VERSION 1.0.0\n(12)",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Color(0xFF8F9BBA),
