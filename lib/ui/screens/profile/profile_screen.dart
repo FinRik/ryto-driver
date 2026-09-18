@@ -43,7 +43,7 @@ class ProfileScreen extends StatelessWidget {
                   name: user.displayName ?? user.fullname,
                   joinDate: user.phoneVerifiedAt?.year == null
                       ? "Member since ${user.phoneVerifiedAt?.year}"
-                      : " ",
+                      : "2026",
                   rating: "${user.rating}",
                   isVerified: user.identityVerified,
                   imageUrl: user.profilePicture ?? "",
